@@ -76,7 +76,20 @@ npm run dev                            # http://localhost:5180
 login-formularen. Den rigtige spærring er `firestore.rules` — feltet i `.env` er
 kun for at få en forståelig fejl i stedet for et tomt panel.
 
-### 3. Data at kigge på
+### 3. Se panelet uden Firebase
+
+Vil du bare se skærmbillederne, kører demoen panelet med testdataene fra
+`seed/data.json` og hverken Firebase eller login:
+
+```sh
+cd web && npm run demo          # dev-server med demodata
+cd web && npm run build:demo    # statisk build i web/demo-dist
+```
+
+Godkend og afvis virker i demoen, men skriver kun til hukommelsen i fanen.
+Forhåndsvisningerne står tomme, fordi demokundernes domæner ikke findes.
+
+### 4. Data at kigge på
 
 Mod emulatoren:
 
@@ -110,6 +123,8 @@ cd .. && firebase deploy --only hosting,firestore:rules,firestore:indexes
 | Kommando | Hvor | Hvad |
 | --- | --- | --- |
 | `npm run dev` | `web/` | Dev-server på port 5180 |
+| `npm run demo` | `web/` | Panelet med testdata, uden Firebase |
+| `npm run build:demo` | `web/` | Statisk demo-build i `web/demo-dist` |
 | `npm run build` | `web/` | Typecheck + produktionsbuild til `web/dist` |
 | `npm run lint` | `web/` | ESLint |
 | `npm test` | `web/` | Vitest |

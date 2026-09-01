@@ -7,3 +7,4 @@ serviceaccount.json
 tsconfig.tsbuildinfo
 firestore-debug.log
 ui-debug.log
+demo-dist/

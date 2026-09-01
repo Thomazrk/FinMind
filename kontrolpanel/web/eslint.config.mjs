@@ -7,7 +7,7 @@ export default [
   { ignores: ["dist/**", "node_modules/**"] },
   js.configs.recommended,
   {
-    files: ["src/**/*.{ts,tsx}"],
+    files: ["src/**/*.{ts,tsx}", "demo/**/*.{ts,tsx}"],
     languageOptions: {
       parser: tsparser,
       parserOptions: { ecmaVersion: "latest", sourceType: "module", ecmaFeatures: { jsx: true } },

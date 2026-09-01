@@ -1,0 +1,50 @@
+.demo-banner {
+  margin: 0;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--waiting-bg);
+  color: var(--waiting);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.demo-banner code {
+  font-size: 0.95em;
+}
+
+/*
+ * Panelet selv styres af prefers-color-scheme. Artifact-viseren stempler
+ * derudover data-theme på :root når man vælger lys eller mørk med vilje —
+ * de to blokke her lader det valg vinde over styresystemets.
+ */
+:root[data-theme="light"] {
+  --paper: #f6f5f1;
+  --surface: #ffffff;
+  --ink: #1c1b19;
+  --muted: #6a675f;
+  --line: #d9d5cc;
+  --line-strong: #b9b4a8;
+  --waiting: #9a6400;
+  --waiting-bg: #fdf3e0;
+  --approve: #2c6136;
+  --approve-bg: #e8f1e8;
+  --reject: #93291e;
+  --reject-bg: #f8eae7;
+  --focus: #1c1b19;
+}
+
+:root[data-theme="dark"] {
+  --paper: #191917;
+  --surface: #232220;
+  --ink: #ecebe6;
+  --muted: #9c988e;
+  --line: #3a3833;
+  --line-strong: #514e47;
+  --waiting: #d9a441;
+  --waiting-bg: #2c2416;
+  --approve: #7fbb87;
+  --approve-bg: #17261a;
+  --reject: #e08b7d;
+  --reject-bg: #2b1815;
+  --focus: #ecebe6;
+}
