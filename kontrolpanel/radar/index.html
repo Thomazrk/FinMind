@@ -1,0 +1,1010 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+</head>
+<body>
+<title>Kunderadar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+  /*
+   * Ét visuelt rum, med vilje: et mørkt instrument set i skumring. Scenen skal
+   * have dybde, og dybde læses ikke på papir. Alle farver er malet eksplicit,
+   * så siden holder uanset hvilken baggrund den bliver vist på.
+   *
+   * Semantikfarverne er de samme som i kontrolpanelet: rav venter, grøn kører,
+   * rød kræver dig nu.
+   */
+  :root {
+    --ground: #14130f;
+    --ground-deep: #0d0c0a;
+    --surface: #1e1c18;
+    --surface-lift: #262319;
+    --line: #3a352c;
+    --line-soft: #2a2721;
+    --ink: #ece7dc;
+    --muted: #9a9083;
+    --faint: #6b6458;
+    --waiting: #e0aa4a;
+    --good: #7fbb87;
+    --bad: #e08b7d;
+    --bronze: #6b5b43;
+
+    --ui: "Familjen Grotesk", "Segoe UI", system-ui, sans-serif;
+    --data: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--ui);
+    overflow: hidden;
+  }
+
+  #scene {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(120% 90% at 50% 18%, #211e18 0%, var(--ground) 46%, var(--ground-deep) 100%);
+  }
+
+  #scene canvas { display: block; }
+
+  /* ---------- etiketter der følger kunderne i rummet ---------- */
+
+  #labels {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .label {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    white-space: nowrap;
+    text-align: center;
+    line-height: 1.25;
+    opacity: 0;
+    transition: opacity 140ms linear;
+  }
+
+  .label-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9), 0 0 2px rgba(0, 0, 0, 0.9);
+  }
+
+  .label-sub {
+    font-family: var(--data);
+    font-size: 10.5px;
+    color: var(--muted);
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+  }
+
+  .label-waiting .label-sub { color: var(--waiting); }
+  .label-bad .label-sub { color: var(--bad); }
+  .label-selected .label-name { color: var(--waiting); }
+
+  /* ---------- HUD ---------- */
+
+  .hud {
+    position: fixed;
+    z-index: 2;
+  }
+
+  .hud-topleft {
+    top: 0;
+    left: 0;
+    padding: 18px 20px;
+    max-width: min(30rem, calc(100% - 40px));
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .standfirst {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--muted);
+    max-width: 34ch;
+    line-height: 1.45;
+  }
+
+  .demo-note {
+    margin: 10px 0 0;
+    font-family: var(--data);
+    font-size: 10.5px;
+    line-height: 1.5;
+    color: var(--faint);
+    max-width: 40ch;
+  }
+
+  /* ---------- inspektør ---------- */
+
+  .panel {
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: min(21rem, 100%);
+    padding: 18px 20px 20px;
+    background: linear-gradient(to left, rgba(20, 19, 15, 0.94) 62%, rgba(20, 19, 15, 0));
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .panel h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .panel h3 {
+    margin: 0 0 6px;
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  .panel-sub {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .rows {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 3px 14px;
+    margin: 0;
+    font-size: 12px;
+  }
+
+  .rows dt { color: var(--muted); }
+
+  .rows dd {
+    margin: 0;
+    font-family: var(--data);
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+
+  .rows dd.is-waiting { color: var(--waiting); }
+  .rows dd.is-good { color: var(--good); }
+  .rows dd.is-bad { color: var(--bad); }
+
+  .meter {
+    height: 5px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: var(--ground-deep);
+    overflow: hidden;
+  }
+
+  .meter-fill {
+    height: 100%;
+    background: var(--good);
+    transition: width 200ms ease;
+  }
+
+  .meter-fill.warn { background: var(--waiting); }
+  .meter-fill.over { background: var(--bad); }
+
+  .meter-caption {
+    margin: 5px 0 0;
+    font-family: var(--data);
+    font-size: 10.5px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .block {
+    border-top: 1px solid var(--line-soft);
+    padding-top: 14px;
+  }
+
+  .block:first-of-type { border-top: 0; padding-top: 0; }
+
+  /* ---------- forklaring ---------- */
+
+  .legend {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .legend li {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+  }
+
+  .legend b {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .legend span { color: var(--muted); }
+
+  .swatch {
+    margin-top: 3px;
+    height: 12px;
+    border-radius: 1px;
+  }
+
+  .sw-height {
+    height: 16px;
+    width: 7px;
+    margin-left: 7px;
+    background: linear-gradient(to top, var(--bronze), #9a8461);
+  }
+
+  .sw-ring {
+    height: 12px;
+    width: 20px;
+    border-radius: 10px / 6px;
+    border: 2px solid var(--good);
+    background: transparent;
+  }
+
+  .sw-wait {
+    height: 10px;
+    width: 10px;
+    margin-left: 5px;
+    background: var(--waiting);
+    box-shadow: 0 0 9px rgba(224, 170, 74, 0.8);
+  }
+
+  .sw-bad {
+    height: 4px;
+    width: 20px;
+    margin-top: 7px;
+    background: var(--bad);
+  }
+
+  .sw-paused {
+    height: 12px;
+    width: 20px;
+    background: repeating-linear-gradient(45deg, #45403a 0 4px, #2c2925 4px 8px);
+  }
+
+  .totals {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .tot-figure {
+    margin: 0;
+    font-family: var(--data);
+    font-size: 17px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .tot-caption {
+    margin: 1px 0 0;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  .tot-waiting .tot-figure { color: var(--waiting); }
+  .tot-bad .tot-figure { color: var(--bad); }
+
+  /* ---------- knapper og bund ---------- */
+
+  .btn {
+    font: inherit;
+    font-size: 12px;
+    padding: 7px 12px;
+    min-height: 34px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--surface-lift);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .btn:hover { border-color: var(--bronze); }
+
+  .btn:focus-visible,
+  .list-item:focus-visible {
+    outline: 2px solid var(--waiting);
+    outline-offset: 2px;
+  }
+
+  .hud-bottom {
+    bottom: 0;
+    left: 0;
+    padding: 0 20px 16px;
+    font-family: var(--data);
+    font-size: 10.5px;
+    color: var(--faint);
+    line-height: 1.6;
+    max-width: min(26rem, calc(100% - 40px));
+  }
+
+  .hud-bottom kbd {
+    font-family: inherit;
+    color: var(--muted);
+  }
+
+  /* ---------- kundeliste i inspektøren ---------- */
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .list-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 5px 6px;
+    border: 0;
+    border-radius: 2px;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    font-size: 12px;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .list-item:hover { background: var(--surface); }
+
+  .list-days {
+    font-family: var(--data);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .list-item[data-flag="waiting"] .list-days { color: var(--waiting); }
+  .list-item[data-flag="bad"] .list-days { color: var(--bad); }
+
+  /* ---------- fejl ---------- */
+
+  .failure {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    display: none;
+    place-content: center;
+    padding: 24px;
+    background: var(--ground);
+  }
+
+  .failure div { max-width: 32rem; }
+
+  .failure h2 { margin: 0 0 8px; font-size: 16px; color: var(--bad); }
+  .failure p { margin: 0 0 8px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  @media (max-width: 900px) {
+    .panel {
+      top: auto;
+      bottom: 0;
+      height: 47%;
+      width: 100%;
+      background: linear-gradient(to top, rgba(20, 19, 15, 0.96) 74%, rgba(20, 19, 15, 0));
+      border-top: 1px solid var(--line-soft);
+    }
+    .hud-bottom { display: none; }
+    .demo-note { max-width: 30ch; }
+  }
+</style>
+
+<div id="scene"></div>
+<div id="labels"></div>
+
+<div class="hud hud-topleft">
+  <h1>Kunderadar</h1>
+  <p class="standfirst">
+    Midten er i dag. Ringene er 30, 60 og 90 dage frem — hver kunde står i sin
+    fornyelsesafstand.
+  </p>
+  <p class="demo-note">
+    Testdata fra kontrolpanelets demo. Ingen rigtige kunder, ingen Firebase.
+  </p>
+</div>
+
+<aside class="hud panel" id="panel" aria-live="polite"></aside>
+
+<div class="hud hud-bottom">
+  <kbd>Træk</kbd> for at dreje · <kbd>Rul</kbd> for at zoome · <kbd>Klik</kbd> en kunde
+</div>
+
+<div class="failure" id="failure">
+  <div>
+    <h2>Radaren kan ikke tegnes</h2>
+    <p id="failure-what">Browseren gav ikke adgang til WebGL.</p>
+    <p id="failure-todo">
+      Prøv en anden browser, eller slå hardwareacceleration til under browserens
+      indstillinger. Tallene findes stadig i kontrolpanelet i 2D.
+    </p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ------------------------------------------------------------------ data */
+
+  /**
+   * Ni små danske virksomheder — samme form som kontrolpanelets kunder, med de
+   * tre fra seed/data.json blandt dem. Dage er talt fra "i dag".
+   */
+  var KUNDER = [
+    { id: "holm",        navn: "Holm Elinstallation",   pakke: "Vedligehold lille",  pris: 1500, dage: 3,   brugt: 71,  inkl: 60,  venter: 1, aiKroner: 2.18, nede: false, pauseret: false, domaene: "holm-el.dk" },
+    { id: "fysio",       navn: "Aarhus Fysioterapi",    pakke: "Vedligehold mellem", pris: 2400, dage: 8,   brugt: 96,  inkl: 120, venter: 0, aiKroner: 0.94, nede: true,  pauseret: false, domaene: "aarhusfysio.dk" },
+    { id: "tandklinik",  navn: "Nordhavn Tandklinik",   pakke: "Vedligehold mellem", pris: 2400, dage: 14,  brugt: 134, inkl: 120, venter: 0, aiKroner: 0.21, nede: false, pauseret: false, domaene: "nordhavntand.dk" },
+    { id: "surf",        navn: "Klitmøller Surfshop",   pakke: "Vedligehold stor",   pris: 1800, dage: 27,  brugt: 55,  inkl: 90,  venter: 2, aiKroner: 3.40, nede: false, pauseret: false, domaene: "klitsurf.dk" },
+    { id: "advokat",     navn: "Møller & Døtre",        pakke: "Vedligehold stor",   pris: 3600, dage: 45,  brugt: 61,  inkl: 180, venter: 1, aiKroner: 1.77, nede: false, pauseret: false, domaene: "moellerogdoetre.dk" },
+    { id: "bageri",      navn: "Bageriet på Torvet",    pakke: "Vedligehold lille",  pris: 1200, dage: 61,  brugt: 42,  inkl: 60,  venter: 1, aiKroner: 1.34, nede: false, pauseret: false, domaene: "bagerietpaatorvet.dk" },
+    { id: "have",        navn: "Grøn Have Anlæg",       pakke: "Vedligehold lille",  pris: 900,  dage: 73,  brugt: 8,   inkl: 45,  venter: 0, aiKroner: 0.12, nede: false, pauseret: true,  domaene: "groenhave.dk" },
+    { id: "cafe",        navn: "Café Solskin",          pakke: "Vedligehold lille",  pris: 1200, dage: 96,  brugt: 30,  inkl: 60,  venter: 0, aiKroner: 0.55, nede: false, pauseret: false, domaene: "cafesolskin.dk" },
+    { id: "vvs",         navn: "Vestergaard VVS",       pakke: "Vedligehold lille",  pris: 1200, dage: 118, brugt: 12,  inkl: 60,  venter: 0, aiKroner: 0.74, nede: false, pauseret: false, domaene: "vestergaardvvs.dk" }
+  ];
+
+  var COL = {
+    ink: 0xece7dc, muted: 0x9a9083, line: 0x3a352c, faint: 0x2a2721,
+    waiting: 0xe0aa4a, good: 0x7fbb87, bad: 0xe08b7d,
+    bronze: 0x6b5b43, pillar: 0x4a4235, pillarPaused: 0x332f29
+  };
+
+  var MAX_DAGE = 120;       // yderste ring
+  var R_INNER = 7;          // "i dag" er ikke et punkt, men en lille skive
+  var R_OUTER = 34;
+
+  function radius(dage) {
+    return R_INNER + (Math.min(dage, MAX_DAGE) / MAX_DAGE) * (R_OUTER - R_INNER);
+  }
+
+  function height(pris) {
+    return 1.6 + (pris / 3600) * 8.4;
+  }
+
+  function supportRatio(k) { return k.inkl > 0 ? k.brugt / k.inkl : 0; }
+
+  function ringColour(k) {
+    var r = supportRatio(k);
+    if (r > 1) return COL.bad;
+    if (r > 0.8) return COL.waiting;
+    return COL.good;
+  }
+
+  var kr = new Intl.NumberFormat("da-DK", { style: "currency", currency: "DKK", minimumFractionDigits: 2 });
+  var tal = new Intl.NumberFormat("da-DK");
+  function dageTekst(d) { return d === 0 ? "i dag" : d === 1 ? "i morgen" : "om " + d + " dage"; }
+
+  /* ------------------------------------------------------------ opsætning */
+
+  var host = document.getElementById("scene");
+  var failure = document.getElementById("failure");
+
+  /** Siger hvad der gik galt og hvad man gør ved det — aldrig bare "der skete en fejl". */
+  function giveUp(what, todo) {
+    document.getElementById("failure-what").textContent = what;
+    document.getElementById("failure-todo").textContent = todo;
+    failure.style.display = "grid";
+  }
+
+  // To vidt forskellige fejl, som er lette at forveksle: biblioteket kom ikke
+  // frem, eller browseren vil ikke tegne 3D. De skal ikke sige det samme.
+  if (typeof THREE === "undefined") {
+    giveUp(
+      "3D-biblioteket three.js blev ikke hentet.",
+      "Siden henter det fra cdnjs.cloudflare.com. Tjek din forbindelse, eller om et " +
+        "netværksfilter blokerer den adresse, og genindlæs."
+    );
+    return;
+  }
+
+  var renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  } catch (err) {
+    giveUp(
+      "Browseren ville ikke starte WebGL: " + (err && err.message ? err.message : "ukendt fejl") + ".",
+      "Slå hardwareacceleration til under browserens indstillinger, eller prøv en anden browser. " +
+        "De samme tal står i kontrolpanelet i 2D."
+    );
+    return;
+  }
+
+  if (!renderer.getContext()) {
+    giveUp(
+      "WebGL startede, men gav ingen tegneflade.",
+      "Det sker typisk når grafikdriveren er spærret. Prøv en anden browser eller en anden maskine."
+    );
+    return;
+  }
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  host.appendChild(renderer.domElement);
+
+  var scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0x14130f, 74, 185);
+
+  var camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.5, 400);
+
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* --------------------------------------------------------------- lys */
+
+  scene.add(new THREE.HemisphereLight(0x6c6350, 0x161410, 0.55));
+
+  var key = new THREE.DirectionalLight(0xf3e3c4, 0.62);
+  key.position.set(-18, 30, 16);
+  scene.add(key);
+
+  var rim = new THREE.DirectionalLight(0x8fa6c4, 0.28);
+  rim.position.set(20, 12, -22);
+  scene.add(rim);
+
+  /* ------------------------------------------------------------- gulvet */
+
+  var floor = new THREE.Mesh(
+    new THREE.CircleGeometry(R_OUTER + 8, 96),
+    new THREE.MeshBasicMaterial({ color: 0x171511 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -0.02;
+  scene.add(floor);
+
+  // Ringene er skalaen: 30, 60 og 90 dage frem. Yderringen er 120.
+  [30, 60, 90, 120].forEach(function (d) {
+    var r = radius(d);
+    var ring = new THREE.Mesh(
+      new THREE.RingGeometry(r - 0.05, r + 0.05, 128),
+      new THREE.MeshBasicMaterial({
+        color: d === 120 ? COL.faint : COL.line,
+        transparent: true,
+        opacity: d === 120 ? 0.5 : 0.85,
+        side: THREE.DoubleSide
+      })
+    );
+    ring.rotation.x = -Math.PI / 2;
+    scene.add(ring);
+  });
+
+  // Midten er i dag: en markeret grænse og et punkt, ikke en flade.
+  var coreRing = new THREE.Mesh(
+    new THREE.RingGeometry(R_INNER - 0.06, R_INNER + 0.06, 96),
+    new THREE.MeshBasicMaterial({ color: COL.bronze, side: THREE.DoubleSide })
+  );
+  coreRing.rotation.x = -Math.PI / 2;
+  coreRing.position.y = 0.012;
+  scene.add(coreRing);
+
+  var coreDot = new THREE.Mesh(
+    new THREE.CircleGeometry(0.55, 32),
+    new THREE.MeshBasicMaterial({ color: COL.bronze })
+  );
+  coreDot.rotation.x = -Math.PI / 2;
+  coreDot.position.y = 0.012;
+  scene.add(coreDot);
+
+  /* ------------------------------------------------------------- kunder */
+
+  var pillars = [];
+  var labelHost = document.getElementById("labels");
+
+  var pillarGeo = new THREE.CylinderGeometry(1.05, 1.25, 1, 6);
+  var waitGeo = new THREE.OctahedronGeometry(0.42);
+
+  KUNDER.forEach(function (k, i) {
+    var angle = (i / KUNDER.length) * Math.PI * 2 + 0.35;
+    var r = radius(k.dage);
+    var x = Math.cos(angle) * r;
+    var z = Math.sin(angle) * r;
+    var h = height(k.pris);
+
+    var group = new THREE.Group();
+    group.position.set(x, 0, z);
+    scene.add(group);
+
+    var body = new THREE.Mesh(
+      pillarGeo,
+      new THREE.MeshStandardMaterial({
+        color: k.pauseret ? COL.pillarPaused : COL.pillar,
+        roughness: 0.72,
+        metalness: 0.12,
+        transparent: true,
+        opacity: k.pauseret ? 0.55 : 1
+      })
+    );
+    body.scale.y = h;
+    body.position.y = h / 2;
+    body.userData.kunde = k;
+    group.add(body);
+
+    // Soklen: hvor meget af pakkens supportminutter der er brugt.
+    var ring = new THREE.Mesh(
+      new THREE.RingGeometry(1.5, 2.0, 48, 1, -Math.PI / 2, Math.min(supportRatio(k), 1) * Math.PI * 2),
+      new THREE.MeshBasicMaterial({ color: ringColour(k), side: THREE.DoubleSide })
+    );
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.04;
+    group.add(ring);
+
+    var ringTrack = new THREE.Mesh(
+      new THREE.RingGeometry(1.5, 2.0, 48),
+      new THREE.MeshBasicMaterial({ color: COL.faint, side: THREE.DoubleSide, transparent: true, opacity: 0.85 })
+    );
+    ringTrack.rotation.x = -Math.PI / 2;
+    ringTrack.position.y = 0.02;
+    group.add(ringTrack);
+
+    // Et rødt bånd hvis en af kundens sider er nede.
+    if (k.nede) {
+      var band = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.12, 1.12, 0.34, 6),
+        new THREE.MeshBasicMaterial({ color: COL.bad })
+      );
+      band.position.y = h - 0.5;
+      group.add(band);
+    }
+
+    // Det eneste der lyser: forslag der venter på dig.
+    var waits = [];
+    for (var w = 0; w < k.venter; w++) {
+      var m = new THREE.Mesh(
+        waitGeo,
+        new THREE.MeshBasicMaterial({ color: COL.waiting })
+      );
+      m.position.set(0, h + 1.5 + w * 1.15, 0);
+      group.add(m);
+      waits.push(m);
+
+      var halo = new THREE.Mesh(
+        new THREE.SphereGeometry(0.85, 16, 12),
+        new THREE.MeshBasicMaterial({ color: COL.waiting, transparent: true, opacity: 0.14 })
+      );
+      m.add(halo);
+    }
+
+    var el = document.createElement("div");
+    el.className = "label" + (k.venter > 0 ? " label-waiting" : k.nede ? " label-bad" : "");
+    el.innerHTML =
+      '<div class="label-name"></div><div class="label-sub"></div>';
+    el.querySelector(".label-name").textContent = k.navn;
+    el.querySelector(".label-sub").textContent =
+      k.venter > 0 ? k.venter + (k.venter === 1 ? " venter" : " venter") :
+      k.nede ? "side nede" : dageTekst(k.dage);
+    labelHost.appendChild(el);
+
+    pillars.push({ kunde: k, group: group, body: body, waits: waits, el: el, height: h, angle: angle, r: r });
+  });
+
+  /* ------------------------------------------------- kamera og styring */
+
+  var HOME_DIST = 92;
+  var orbit = { theta: -Math.PI / 2.3, phi: 0.88, dist: HOME_DIST };
+  var target = new THREE.Vector3(0, 3.2, 0);
+  var wanted = { theta: orbit.theta, phi: orbit.phi, dist: orbit.dist, target: target.clone() };
+
+  function applyCamera() {
+    var sp = Math.sin(wanted.phi);
+    camera.position.set(
+      target.x + wanted.dist * sp * Math.cos(wanted.theta),
+      target.y + wanted.dist * Math.cos(wanted.phi),
+      target.z + wanted.dist * sp * Math.sin(wanted.theta)
+    );
+    camera.lookAt(target);
+  }
+
+  var dragging = false;
+  var last = { x: 0, y: 0 };
+  var moved = 0;
+
+  function onDown(e) {
+    dragging = true;
+    moved = 0;
+    last.x = e.clientX;
+    last.y = e.clientY;
+    renderer.domElement.setPointerCapture(e.pointerId);
+  }
+
+  function onMove(e) {
+    if (!dragging) {
+      hoverAt(e.clientX, e.clientY);
+      return;
+    }
+    var dx = e.clientX - last.x;
+    var dy = e.clientY - last.y;
+    moved += Math.abs(dx) + Math.abs(dy);
+    last.x = e.clientX;
+    last.y = e.clientY;
+    wanted.theta -= dx * 0.005;
+    wanted.phi = Math.max(0.18, Math.min(1.32, wanted.phi - dy * 0.004));
+  }
+
+  function onUp(e) {
+    if (dragging && moved < 6) pickAt(e.clientX, e.clientY);
+    dragging = false;
+    try { renderer.domElement.releasePointerCapture(e.pointerId); } catch (err) { /* ignoreres */ }
+  }
+
+  renderer.domElement.addEventListener("pointerdown", onDown);
+  renderer.domElement.addEventListener("pointermove", onMove);
+  renderer.domElement.addEventListener("pointerup", onUp);
+  renderer.domElement.addEventListener("pointercancel", function () { dragging = false; });
+
+  renderer.domElement.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    wanted.dist = Math.max(16, Math.min(150, wanted.dist + e.deltaY * 0.06));
+  }, { passive: false });
+
+  var pinch = 0;
+  renderer.domElement.addEventListener("touchmove", function (e) {
+    if (e.touches.length !== 2) return;
+    var dx = e.touches[0].clientX - e.touches[1].clientX;
+    var dy = e.touches[0].clientY - e.touches[1].clientY;
+    var d = Math.sqrt(dx * dx + dy * dy);
+    if (pinch) wanted.dist = Math.max(16, Math.min(150, wanted.dist + (pinch - d) * 0.12));
+    pinch = d;
+  }, { passive: true });
+
+  renderer.domElement.addEventListener("touchend", function () { pinch = 0; });
+
+  /* ------------------------------------------------------------ udvælg */
+
+  var ray = new THREE.Raycaster();
+  var ndc = new THREE.Vector2();
+  var selected = null;
+  var hovered = null;
+
+  function hit(cx, cy) {
+    ndc.x = (cx / window.innerWidth) * 2 - 1;
+    ndc.y = -(cy / window.innerHeight) * 2 + 1;
+    ray.setFromCamera(ndc, camera);
+    var found = ray.intersectObjects(pillars.map(function (p) { return p.body; }), false);
+    return found.length ? found[0].object.userData.kunde : null;
+  }
+
+  function hoverAt(cx, cy) {
+    var k = hit(cx, cy);
+    if (k === hovered) return;
+    hovered = k;
+    renderer.domElement.style.cursor = k ? "pointer" : "default";
+  }
+
+  function pickAt(cx, cy) {
+    var k = hit(cx, cy);
+    select(k ? k.id : null);
+  }
+
+  function select(id) {
+    selected = id;
+    pillars.forEach(function (p) {
+      var on = p.kunde.id === id;
+      p.body.material.emissive = new THREE.Color(on ? 0x3a2f19 : 0x000000);
+      p.el.classList.toggle("label-selected", on);
+      if (on) {
+        wanted.target = new THREE.Vector3(p.group.position.x, p.height * 0.5, p.group.position.z);
+        wanted.dist = Math.max(20, p.height * 2.4 + 16);
+      }
+    });
+    if (!id) {
+      wanted.target = new THREE.Vector3(0, 3.2, 0);
+      wanted.dist = HOME_DIST;
+    }
+    renderPanel();
+  }
+
+  /* ----------------------------------------------------------- panelet */
+
+  var panel = document.getElementById("panel");
+
+  var totalPris = KUNDER.reduce(function (s, k) { return s + k.pris; }, 0);
+  var totalVenter = KUNDER.reduce(function (s, k) { return s + k.venter; }, 0);
+  var antalNede = KUNDER.filter(function (k) { return k.nede; }).length;
+  var antalOver = KUNDER.filter(function (k) { return supportRatio(k) > 1; }).length;
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  function overviewHTML() {
+    var soonest = KUNDER.slice().sort(function (a, b) { return a.dage - b.dage; });
+    return '' +
+      '<div class="block">' +
+        '<h3>Hele porteføljen</h3>' +
+        '<div class="totals">' +
+          '<div><p class="tot-figure">' + esc(kr.format(totalPris)) + '</p>' +
+            '<p class="tot-caption">fast om måneden fra ' + KUNDER.length + ' kunder</p></div>' +
+          '<div class="tot-waiting"><p class="tot-figure">' + totalVenter + '</p>' +
+            '<p class="tot-caption">forslag venter på dig</p></div>' +
+          '<div class="tot-bad"><p class="tot-figure">' + antalNede + '</p>' +
+            '<p class="tot-caption">side nede lige nu</p></div>' +
+          '<div class="tot-bad"><p class="tot-figure">' + antalOver + '</p>' +
+            '<p class="tot-caption">over sine supportminutter</p></div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="block">' +
+        '<h3>Sådan læses radaren</h3>' +
+        '<ul class="legend">' +
+          '<li><span class="swatch sw-height"></span><span><b>Højde</b> er månedsprisen — høj søjle, dyr aftale.</span></li>' +
+          '<li><span class="swatch sw-ring"></span><span><b>Soklen</b> fyldes med de supportminutter, pakken har brugt. Rød når den er brugt op.</span></li>' +
+          '<li><span class="swatch sw-wait"></span><span><b>Ravlys</b> er et forslag der venter på din godkendelse. Ét lys, ét klik.</span></li>' +
+          '<li><span class="swatch sw-bad"></span><span><b>Rødt bånd</b> betyder at kundens side er nede.</span></li>' +
+          '<li><span class="swatch sw-paused"></span><span><b>Nedtonet</b> betyder at automatikken er sat på pause for den kunde.</span></li>' +
+        '</ul>' +
+      '</div>' +
+
+      '<div class="block">' +
+        '<h3>Nærmest fornyelse</h3>' +
+        '<ul class="list">' +
+          soonest.slice(0, 5).map(function (k) {
+            var flag = k.venter > 0 ? "waiting" : k.nede || supportRatio(k) > 1 ? "bad" : "";
+            return '<button class="list-item" data-id="' + esc(k.id) + '" data-flag="' + flag + '">' +
+              '<span>' + esc(k.navn) + '</span>' +
+              '<span class="list-days">' + esc(dageTekst(k.dage)) + '</span>' +
+            '</button>';
+          }).join("") +
+        '</ul>' +
+      '</div>';
+  }
+
+  function detailHTML(k) {
+    var ratio = supportRatio(k);
+    var cls = ratio > 1 ? "over" : ratio > 0.8 ? "warn" : "";
+    return '' +
+      '<div class="block">' +
+        '<h2>' + esc(k.navn) + '</h2>' +
+        '<p class="panel-sub">' + esc(k.pakke) + ' · ' + esc(kr.format(k.pris)) + ' om måneden</p>' +
+      '</div>' +
+
+      '<div class="block">' +
+        '<h3>Support denne måned</h3>' +
+        '<div class="meter"><div class="meter-fill ' + cls + '" style="width:' +
+          (Math.min(ratio, 1) * 100).toFixed(1) + '%"></div></div>' +
+        '<p class="meter-caption">' + tal.format(k.brugt) + ' af ' + tal.format(k.inkl) + ' minutter' +
+          (ratio > 1 ? ' · ' + tal.format(k.brugt - k.inkl) + ' over' : '') + '</p>' +
+      '</div>' +
+
+      '<div class="block">' +
+        '<h3>Nøgletal</h3>' +
+        '<dl class="rows">' +
+          '<dt>Fornyes</dt><dd>' + esc(dageTekst(k.dage)) + '</dd>' +
+          '<dt>Venter</dt><dd class="' + (k.venter ? 'is-waiting' : '') + '">' +
+            (k.venter ? k.venter + ' forslag' : 'ingenting') + '</dd>' +
+          '<dt>Side</dt><dd class="' + (k.nede ? 'is-bad' : 'is-good') + '">' +
+            (k.nede ? 'nede' : 'live') + '</dd>' +
+          '<dt>Automatik</dt><dd class="' + (k.pauseret ? 'is-bad' : 'is-good') + '">' +
+            (k.pauseret ? 'på pause' : 'kører') + '</dd>' +
+          '<dt>AI i måneden</dt><dd>' + esc(kr.format(k.aiKroner)) + '</dd>' +
+          '<dt>Domæne</dt><dd>' + esc(k.domaene) + '</dd>' +
+          '<dt>Dokument</dt><dd>kunder/' + esc(k.id) + '</dd>' +
+        '</dl>' +
+      '</div>' +
+
+      '<div class="block">' +
+        '<button class="btn" id="back">Tilbage til hele porteføljen</button>' +
+      '</div>';
+  }
+
+  function renderPanel() {
+    var k = selected && KUNDER.filter(function (c) { return c.id === selected; })[0];
+    panel.innerHTML = k ? detailHTML(k) : overviewHTML();
+
+    var back = document.getElementById("back");
+    if (back) back.addEventListener("click", function () { select(null); });
+
+    Array.prototype.forEach.call(panel.querySelectorAll(".list-item"), function (b) {
+      b.addEventListener("click", function () { select(b.getAttribute("data-id")); });
+    });
+  }
+
+  renderPanel();
+
+  /* ------------------------------------------------------------ løkken */
+
+  var proj = new THREE.Vector3();
+
+  /**
+   * Etiketterne ligger som HTML oven på lærredet, så de bliver skarpe. Prisen er
+   * at de ikke ved noget om inspektøren — så de tones ud, hvor den dækker.
+   */
+  function updateLabels() {
+    var box = panel.getBoundingClientRect();
+    pillars.forEach(function (p) {
+      proj.set(p.group.position.x, p.height + (p.kunde.venter ? 2.6 + p.kunde.venter * 1.1 : 0.9), p.group.position.z);
+      proj.project(camera);
+      if (proj.z > 1) { p.el.style.opacity = 0; return; }
+      var x = (proj.x * 0.5 + 0.5) * window.innerWidth;
+      var y = (-proj.y * 0.5 + 0.5) * window.innerHeight;
+      var behindPanel = x > box.left - 12 && y > box.top - 12 && y < box.bottom + 12;
+      p.el.style.opacity = behindPanel ? 0 : 1;
+      p.el.style.left = x.toFixed(1) + "px";
+      p.el.style.top = y.toFixed(1) + "px";
+    });
+  }
+
+  var t0 = performance.now();
+
+  function frame(now) {
+    var t = (now - t0) / 1000;
+
+    // Kameraet glider mod det ønskede — aldrig et spring.
+    orbit.theta += (wanted.theta - orbit.theta) * 0.12;
+    orbit.phi += (wanted.phi - orbit.phi) * 0.12;
+    orbit.dist += (wanted.dist - orbit.dist) * 0.09;
+    target.lerp(wanted.target, 0.09);
+
+    var sp = Math.sin(orbit.phi);
+    camera.position.set(
+      target.x + orbit.dist * sp * Math.cos(orbit.theta),
+      target.y + orbit.dist * Math.cos(orbit.phi),
+      target.z + orbit.dist * sp * Math.sin(orbit.theta)
+    );
+    camera.lookAt(target);
+
+    if (!reduceMotion) {
+      pillars.forEach(function (p, i) {
+        p.waits.forEach(function (m, j) {
+          m.position.y = p.height + 1.5 + j * 1.15 + Math.sin(t * 1.5 + i + j) * 0.18;
+          m.rotation.y = t * 0.7 + i;
+          m.children[0].scale.setScalar(1 + Math.sin(t * 2.2 + i + j) * 0.14);
+        });
+      });
+    }
+
+    updateLabels();
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+
+  applyCamera();
+  requestAnimationFrame(frame);
+
+  window.addEventListener("resize", function () {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+</script>
+</body>
+</html>
