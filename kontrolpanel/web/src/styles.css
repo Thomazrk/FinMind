@@ -389,15 +389,26 @@ a:focus-visible {
 }
 
 .preview {
+  --preview-scale: 0.25;
   position: relative;
   height: 15rem;
+  overflow: hidden;
   border-bottom: 1px solid var(--line);
   background: var(--paper);
 }
 
+/*
+ * Skaleret miniature, ikke et vindue ind i siden: rammen tegner i skrivebords-
+ * bredde og krympes bagefter, så kortet viser hele toppen af kundesiden.
+ * pointer-events er slået fra — rammen er til at kigge på, linket er til at
+ * klikke på.
+ */
 .preview iframe {
-  width: 100%;
-  height: 100%;
+  width: calc(100% / var(--preview-scale));
+  height: calc(100% / var(--preview-scale));
+  transform: scale(var(--preview-scale));
+  transform-origin: top left;
+  pointer-events: none;
   border: 0;
   display: block;
 }

@@ -70,6 +70,7 @@ export function watchSites(onData: OnData<Site[]>, onError: OnError): Unsubscrib
             produktionsUrl: data.produktionsUrl ?? "",
             sidsteDeploy: toIso(data.sidsteDeploy),
             status: data.status ?? "live",
+            forhåndsvisningsUrl: data.forhåndsvisningsUrl ?? null,
           })),
         ),
       ),

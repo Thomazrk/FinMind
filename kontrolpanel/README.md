@@ -87,7 +87,8 @@ cd web && npm run build:demo    # statisk build i web/demo-dist
 ```
 
 Godkend og afvis virker i demoen, men skriver kun til hukommelsen i fanen.
-Forhåndsvisningerne står tomme, fordi demokundernes domæner ikke findes.
+Forhåndsvisningerne viser små stand-in-kundesider fra `demo/demoSites.ts`,
+fordi demokundernes domæner ikke findes.
 
 ### 4. Data at kigge på
 
@@ -158,7 +159,8 @@ beskrivelse af formerne.
 kunder/{id}     navn, slackKanalId, repo, domæne, pakke, månedspris,
                 fornyelsesdato, supportMinutterDenneMåned
 
-sider/{id}      kundeId, repo, produktionsUrl, sidsteDeploy, status
+sider/{id}      kundeId, repo, produktionsUrl, sidsteDeploy, status,
+                forhåndsvisningsUrl (valgfri)
 
 opgaver/{id}    kundeId, sideId, slackBeskedId, slackPermalink, beskedTekst,
                 afsender, modtagetTidspunkt, resumé,
@@ -213,9 +215,14 @@ Panelet skal ligne et værktøj. Konkret:
 - Panelet har ingen skriveadgang til kunde-, side- eller forbrugsdata.
 - Firebase Hosting sender `X-Frame-Options: DENY` — panelet må ikke selv
   indlejres, selvom det indlejrer kundesider.
-- Kundesiderne vises i en `sandbox`'et iframe med `referrerPolicy="no-referrer"`.
-  Nogle sider sender `X-Frame-Options` og bliver blanke i rammen; derfor står
+- Kundesiderne vises i en `sandbox`'et iframe med `referrerPolicy="no-referrer"`
+  og `pointer-events: none` — rammen er en miniature at kigge på, ikke et vindue
+  at bruge siden igennem. Den tegner i 1280 px bredde og skaleres ned, så kortet
+  viser hele toppen af siden.
+- Nogle sider sender `X-Frame-Options` og bliver blanke i rammen; derfor står
   URL, repo og sidste deploy altid som læsbar tekst ved siden af, med et link ud.
+  Har en side en `forhåndsvisningsUrl` på dokumentet, loader rammen den i stedet
+  — fx en staging-kopi — mens kortet stadig viser og linker produktions-URL'en.
 - `.env.local` og servicekontonøgler er i `.gitignore`. Serverhemmeligheder
   (Slack signing secret, Claude API-nøgle) hører til i Secret Manager, ikke her.
 - Ingen kundedata i logs.

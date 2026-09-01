@@ -32,6 +32,12 @@ export interface Site {
   produktionsUrl: string;
   sidsteDeploy: string | null; // ISO timestamp
   status: SiteStatus;
+  /**
+   * Optional: what the preview frame loads, when that has to differ from the
+   * production URL — a staging copy, for a site whose production host sends
+   * X-Frame-Options. The card always shows and links produktionsUrl.
+   */
+  forhåndsvisningsUrl?: string | null;
 }
 
 export interface Classification {

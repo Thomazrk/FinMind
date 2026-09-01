@@ -7,13 +7,18 @@
  * clickable without Firebase.
  */
 import seed from "../../seed/data.json";
+import { demoPreviewUrl } from "./demoSites";
 import type { ActivityEntry, Customer, MonthlyUsage, Site, Task } from "../src/types";
 
 export type Unsubscribe = () => void;
 type OnData<T> = (value: T) => void;
 
 const customers = seed.kunder as unknown as Customer[];
-const sites = seed.sider as unknown as Site[];
+/** The cards keep the real domain; only the frame loads the stand-in page. */
+const sites = (seed.sider as unknown as Site[]).map((site) => ({
+  ...site,
+  forhåndsvisningsUrl: demoPreviewUrl(site.id),
+}));
 let tasks = seed.opgaver as unknown as Task[];
 let activity = seed.aktivitet as unknown as ActivityEntry[];
 const usage = seed.forbrug as unknown as MonthlyUsage[];

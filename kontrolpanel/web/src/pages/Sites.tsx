@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { watchCustomers, watchSites, watchTasks } from "../data/firestore";
 import { useSubscription } from "../data/useData";
@@ -11,14 +11,27 @@ import type { Customer, Site, Task } from "../types";
 const PREVIEW_TIMEOUT_MS = 8000;
 
 /**
+ * The frame renders the site at a desktop width and is then scaled down to fit
+ * the card, so the card shows the top of the page rather than a crop of its
+ * top-left corner. Width and height are both 100%/scale in CSS, which makes the
+ * frame's own viewport exactly PREVIEW_WIDTH px wide.
+ */
+const PREVIEW_WIDTH = 1280;
+
+/**
  * Live preview in an iframe. Customer sites are on our own domains, but some
  * still send X-Frame-Options, and an iframe cannot tell us it was blocked. So
  * the frame is never the only thing on the card: URL, repo and last deploy stay
  * readable as text, and there is a direct link out.
+ *
+ * `url` is forhåndsvisningsUrl when the document has one, otherwise
+ * produktionsUrl — so a framing-hostile site can point at a staging copy
+ * without changing what the card says the site's address is.
  */
 function Preview({ url, name }: { url: string; name: string }) {
   const [loaded, setLoaded] = useState(false);
   const [gaveUp, setGaveUp] = useState(false);
+  const frame = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!url || loaded) return;
@@ -26,12 +39,24 @@ function Preview({ url, name }: { url: string; name: string }) {
     return () => window.clearTimeout(id);
   }, [url, loaded]);
 
+  useEffect(() => {
+    const el = frame.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const fit = (width: number) => {
+      if (width > 0) el.style.setProperty("--preview-scale", String(width / PREVIEW_WIDTH));
+    };
+    fit(el.clientWidth);
+    const observer = new ResizeObserver(([entry]) => fit(entry.contentRect.width));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [url]);
+
   if (!url) {
     return <div className="preview preview-missing">Ingen produktionsUrl på dokumentet</div>;
   }
 
   return (
-    <div className="preview">
+    <div className="preview" ref={frame}>
       {!loaded && !gaveUp && <p className="preview-status">Indlæser {url} …</p>}
       {!loaded && gaveUp && (
         <div className="preview-blocked">
@@ -102,7 +127,7 @@ export default function SitesPage() {
                 <SiteBadge status={site.status} />
               </header>
 
-              <Preview url={site.produktionsUrl} name={name} />
+              <Preview url={site.forhåndsvisningsUrl || site.produktionsUrl} name={name} />
 
               <dl className="raw">
                 <dt>Url</dt>
