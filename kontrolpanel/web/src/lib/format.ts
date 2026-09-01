@@ -65,6 +65,15 @@ export function formatMinutes(minutes: number): string {
   return rest === 0 ? `${hours} t.` : `${hours} t. ${rest} min.`;
 }
 
+/**
+ * Support minutes measured against a package allowance. Both numbers stay in
+ * minutes: "2 t. 14 min. af 2 t." is technically right and almost unreadable,
+ * where "134 af 120 minutter" can be compared at a glance.
+ */
+export function formatMinutesOf(used: number, included: number): string {
+  return `${formatNumber(used)} af ${formatNumber(included)} minutter`;
+}
+
 /** "2026-09" -> "september 2026" */
 export function formatMonth(id: string): string {
   const [year, month] = id.split("-").map(Number);

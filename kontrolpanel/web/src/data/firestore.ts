@@ -1,5 +1,7 @@
 import {
   addDoc,
+  arrayRemove,
+  arrayUnion,
   collection,
   doc,
   getDoc,
@@ -7,6 +9,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
   Timestamp,
   updateDoc,
   where,
@@ -14,7 +17,7 @@ import {
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { db } from "../firebase";
-import type { ActivityEntry, Customer, MonthlyUsage, Site, Task } from "../types";
+import type { ActivityEntry, Automation, Customer, MonthlyUsage, Settings, Site, Task } from "../types";
 
 /** Firestore hands back Timestamp objects; the UI wants plain ISO strings. */
 function toIso(value: unknown): string | null {
@@ -51,6 +54,8 @@ export function watchCustomers(onData: OnData<Customer[]>, onError: OnError): Un
             månedspris: Number(data.månedspris ?? 0),
             fornyelsesdato: toIso(data.fornyelsesdato) ?? "",
             supportMinutterDenneMåned: Number(data.supportMinutterDenneMåned ?? 0),
+            supportMinutterPrMåned:
+              data.supportMinutterPrMåned == null ? null : Number(data.supportMinutterPrMåned),
           })),
         ),
       ),
@@ -187,6 +192,115 @@ export function watchCustomerTasks(
     (snap) => onData(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Task)),
     onError,
   );
+}
+
+export function watchAutomation(onData: OnData<Automation>, onError: OnError): Unsubscribe {
+  return onSnapshot(
+    doc(db(), "system", "automatik"),
+    (snap) => {
+      const data = snap.data() ?? {};
+      onData({
+        pauseret: Boolean(data.pauseret),
+        pausetAf: data.pausetAf ?? null,
+        pausetTidspunkt: toIso(data.pausetTidspunkt),
+        årsag: data.årsag ?? null,
+        pausedeKunder: Array.isArray(data.pausedeKunder) ? data.pausedeKunder : [],
+        månedsbudgetKroner:
+          data.månedsbudgetKroner == null ? null : Number(data.månedsbudgetKroner),
+      });
+    },
+    onError,
+  );
+}
+
+export function watchSettings(onData: OnData<Settings>, onError: OnError): Unsubscribe {
+  return onSnapshot(
+    doc(db(), "system", "indstillinger"),
+    (snap) => {
+      const data = snap.data() ?? {};
+      onData({ timepris: data.timepris == null ? null : Number(data.timepris) });
+    },
+    onError,
+  );
+}
+
+/**
+ * The emergency stop. Pausing is always allowed; starting again is the
+ * direction that needs a deliberate click, which is why both go through here
+ * and both land in the activity log.
+ */
+export async function setAutomationPause(
+  paused: boolean,
+  reason: string,
+  changedBy: string,
+): Promise<void> {
+  if (paused && !reason.trim()) {
+    throw new Error("Skriv hvorfor du sætter automatikken på pause — det bliver logget.");
+  }
+
+  await setDoc(
+    doc(db(), "system", "automatik"),
+    {
+      pauseret: paused,
+      pausetAf: paused ? changedBy : null,
+      pausetTidspunkt: paused ? serverTimestamp() : null,
+      årsag: paused ? reason.trim() : null,
+    },
+    { merge: true },
+  );
+
+  await addDoc(collection(db(), "aktivitet"), {
+    tidspunkt: serverTimestamp(),
+    handling: paused ? "automatikPauset" : "automatikGenstartet",
+    opgaveId: null,
+    kundeId: null,
+    udførtAf: changedBy,
+    detalje: paused ? `Automatikken sat på pause — ${reason.trim()}` : "Automatikken kører igen",
+  });
+}
+
+/** Pausing one customer while the rest keep running. */
+export async function setCustomerPause(
+  customerId: string,
+  paused: boolean,
+  changedBy: string,
+): Promise<void> {
+  await setDoc(
+    doc(db(), "system", "automatik"),
+    { pausedeKunder: paused ? arrayUnion(customerId) : arrayRemove(customerId) },
+    { merge: true },
+  );
+
+  await addDoc(collection(db(), "aktivitet"), {
+    tidspunkt: serverTimestamp(),
+    handling: paused ? "automatikPauset" : "automatikGenstartet",
+    opgaveId: null,
+    kundeId: customerId,
+    udførtAf: changedBy,
+    detalje: paused
+      ? "Automatikken sat på pause for denne kunde"
+      : "Automatikken kører igen for denne kunde",
+  });
+}
+
+export async function setMonthlyBudget(kroner: number | null, changedBy: string): Promise<void> {
+  if (kroner !== null && (!Number.isFinite(kroner) || kroner < 0)) {
+    throw new Error("Budgetloftet skal være et positivt beløb, eller tomt for intet loft.");
+  }
+
+  await setDoc(doc(db(), "system", "automatik"), { månedsbudgetKroner: kroner }, { merge: true });
+
+  await addDoc(collection(db(), "aktivitet"), {
+    tidspunkt: serverTimestamp(),
+    handling: "automatiskKørsel",
+    opgaveId: null,
+    kundeId: null,
+    udførtAf: changedBy,
+    detalje:
+      kroner === null
+        ? "Budgetloft fjernet"
+        : `Budgetloft sat til ${kroner.toLocaleString("da-DK")} kr. om måneden`,
+  });
 }
 
 export interface Decision {

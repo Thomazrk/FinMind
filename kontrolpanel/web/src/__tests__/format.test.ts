@@ -50,3 +50,11 @@ describe("format", () => {
     expect(currentMonthId(new Date(2026, 11, 31))).toBe("2026-12");
   });
 });
+
+describe("formatMinutesOf", () => {
+  it("holder begge tal i minutter, så de kan sammenlignes", async () => {
+    const { formatMinutesOf } = await import("../lib/format");
+    expect(formatMinutesOf(134, 120)).toBe("134 af 120 minutter");
+    expect(formatMinutesOf(1500, 1200)).toBe("1.500 af 1.200 minutter");
+  });
+});

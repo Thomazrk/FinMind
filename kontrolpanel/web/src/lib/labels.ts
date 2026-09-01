@@ -32,4 +32,6 @@ export const activityLabel: Record<ActivityAction, string> = {
   automatiskKørsel: "Automatisk kørsel",
   tilbudSendt: "Tilbud sendt",
   leveret: "Leveret",
+  automatikPauset: "Automatik sat på pause",
+  automatikGenstartet: "Automatik startet igen",
 };

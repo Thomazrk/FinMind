@@ -9,7 +9,8 @@
       "pakke": "Vedligehold lille",
       "månedspris": 1200,
       "fornyelsesdato": "2026-11-01",
-      "supportMinutterDenneMåned": 42
+      "supportMinutterDenneMåned": 42,
+      "supportMinutterPrMåned": 60
     },
     {
       "id": "nordhavnstandklinik",
@@ -20,7 +21,8 @@
       "pakke": "Vedligehold mellem",
       "månedspris": 2400,
       "fornyelsesdato": "2026-09-15",
-      "supportMinutterDenneMåned": 88
+      "supportMinutterDenneMåned": 134,
+      "supportMinutterPrMåned": 120
     },
     {
       "id": "vestergaardvvs",
@@ -31,7 +33,8 @@
       "pakke": "Vedligehold lille",
       "månedspris": 1200,
       "fornyelsesdato": "2027-01-10",
-      "supportMinutterDenneMåned": 12
+      "supportMinutterDenneMåned": 12,
+      "supportMinutterPrMåned": 60
     }
   ],
   "sider": [
@@ -87,7 +90,11 @@
           "efter": "<li>\n  <span>Lørdag</span>\n  <time datetime=\"07:00\">07.00</time>–<time datetime=\"16:00\">16.00</time>\n</li>"
         }
       ],
-      "forbrug": { "inputTokens": 18422, "outputTokens": 1105, "kroner": 1.34 },
+      "forbrug": {
+        "inputTokens": 18422,
+        "outputTokens": 1105,
+        "kroner": 1.34
+      },
       "afgjortAf": null,
       "afgjortTidspunkt": null,
       "afvisningsårsag": null
@@ -112,7 +119,11 @@
       "prUrl": null,
       "previewUrl": null,
       "diff": [],
-      "forbrug": { "inputTokens": 2140, "outputTokens": 388, "kroner": 0.21 },
+      "forbrug": {
+        "inputTokens": 2140,
+        "outputTokens": 388,
+        "kroner": 0.21
+      },
       "afgjortAf": null,
       "afgjortTidspunkt": null,
       "afvisningsårsag": null
@@ -143,7 +154,11 @@
           "efter": "<a href=\"tel:+4540128890\">40 12 88 90</a>"
         }
       ],
-      "forbrug": { "inputTokens": 9880, "outputTokens": 640, "kroner": 0.74 },
+      "forbrug": {
+        "inputTokens": 9880,
+        "outputTokens": 640,
+        "kroner": 0.74
+      },
       "afgjortAf": "mig@studiet.dk",
       "afgjortTidspunkt": "2026-08-30T19:40:00.000Z",
       "afvisningsårsag": null
@@ -174,7 +189,11 @@
           "efter": "<Hero billede={rugbroed} alt=\"Rugbrød\" />"
         }
       ],
-      "forbrug": { "inputTokens": 12040, "outputTokens": 820, "kroner": 0.93 },
+      "forbrug": {
+        "inputTokens": 12040,
+        "outputTokens": 820,
+        "kroner": 0.93
+      },
       "afgjortAf": "mig@studiet.dk",
       "afgjortTidspunkt": "2026-08-28T20:15:00.000Z",
       "afvisningsårsag": "Billedet er for mørkt i toppen — bad Mette om et nyt foto i dagslys."
@@ -185,7 +204,9 @@
       "id": "2026-09",
       "totalTokens": 19527,
       "totalKroner": 1.34,
-      "perKunde": { "bagerietpaatorvet": 1.34 }
+      "perKunde": {
+        "bagerietpaatorvet": 1.34
+      }
     },
     {
       "id": "2026-08",
@@ -243,6 +264,21 @@
       "kundeId": "bagerietpaatorvet",
       "udførtAf": "automatik",
       "detalje": "Ændringsbygger åbnede pull request 47 på branch auto/nyt-heltebillede"
+    }
+  ],
+  "system": [
+    {
+      "id": "automatik",
+      "pauseret": false,
+      "pausetAf": null,
+      "pausetTidspunkt": null,
+      "årsag": null,
+      "pausedeKunder": [],
+      "månedsbudgetKroner": 400
+    },
+    {
+      "id": "indstillinger",
+      "timepris": 750
     }
   ]
 }

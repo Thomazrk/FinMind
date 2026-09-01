@@ -76,7 +76,7 @@ async function write(collection, documents) {
 
 try {
   const data = JSON.parse(await readFile(join(here, "data.json"), "utf8"));
-  for (const collection of ["kunder", "sider", "opgaver", "forbrug", "aktivitet"]) {
+  for (const collection of ["kunder", "sider", "opgaver", "forbrug", "aktivitet", "system"]) {
     await write(collection, data[collection] ?? []);
   }
   console.log(`\nFærdig. Projekt: ${projectId}${usingEmulator ? " (emulator)" : ""}`);

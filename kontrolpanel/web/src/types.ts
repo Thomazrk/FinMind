@@ -23,6 +23,8 @@ export interface Customer {
   månedspris: number;
   fornyelsesdato: string; // ISO date, e.g. "2026-03-01"
   supportMinutterDenneMåned: number;
+  /** Minutes the package includes per month. Without it, usage has no ceiling to read against. */
+  supportMinutterPrMåned?: number | null;
 }
 
 export interface Site {
@@ -92,7 +94,34 @@ export type ActivityAction =
   | "afvist"
   | "automatiskKørsel"
   | "tilbudSendt"
-  | "leveret";
+  | "leveret"
+  | "automatikPauset"
+  | "automatikGenstartet";
+
+/**
+ * The brake. Every background worker — classifier, change builder, deploy,
+ * Slack reply — reads this before it starts and stops if it says stop.
+ *
+ * Firestore rules cannot enforce that: workers run on the Admin SDK, which goes
+ * around rules entirely. The check belongs in the workers themselves, and
+ * kontrolpanel/README.md states the contract they have to honour.
+ */
+export interface Automation {
+  /** Everything is stopped, for every customer. */
+  pauseret: boolean;
+  pausetAf: string | null;
+  pausetTidspunkt: string | null; // ISO timestamp
+  årsag: string | null;
+  /** Customer ids paused on their own, while the rest keep running. */
+  pausedeKunder: string[];
+  /** Kroner per month. When the month's spend passes it, the workers stop. */
+  månedsbudgetKroner: number | null;
+}
+
+export interface Settings {
+  /** Used to work out what an hour of your own time costs against a subscription. */
+  timepris: number | null;
+}
 
 export interface ActivityEntry {
   id: string;

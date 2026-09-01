@@ -14,7 +14,7 @@ createRoot(root).render(
       Demo af kontrolpanelet med testdata fra <code>seed/data.json</code>. Ingen Firebase, ingen rigtige
       kunder — godkend og afvis virker, men skriver kun til hukommelsen i denne fane.
     </p>
-    <MemoryRouter initialEntries={["/afventer"]}>
+    <MemoryRouter initialEntries={["/"]}>
       <App />
     </MemoryRouter>
   </StrictMode>,

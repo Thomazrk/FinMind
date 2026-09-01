@@ -1,15 +1,19 @@
 import { useCallback } from "react";
-import { NavLink, Navigate, Route, Routes } from "react-router-dom";
+import { Link, NavLink, Route, Routes } from "react-router-dom";
 import { useAuth } from "./auth";
 import { ErrorNotice } from "./components/ErrorNotice";
-import { watchTasks } from "./data/firestore";
+import { watchAutomation, watchTasks } from "./data/firestore";
 import { useSubscription } from "./data/useData";
 import ActivityPage from "./pages/Activity";
+import AutomationPage from "./pages/Automation";
+import CustomerDetailPage from "./pages/CustomerDetail";
+import CustomersPage from "./pages/Customers";
 import PendingPage from "./pages/Pending";
 import SignInPage from "./pages/SignIn";
 import SitesPage from "./pages/Sites";
+import TodayPage from "./pages/Today";
 import UsagePage from "./pages/Usage";
-import type { Task } from "./types";
+import type { Automation, Task } from "./types";
 
 /** Routes stay Danish — they show up in the address bar. */
 function Navigation() {
@@ -18,14 +22,32 @@ function Navigation() {
 
   return (
     <nav className="mainnav">
-      <NavLink to="/sider">Sider</NavLink>
+      <NavLink to="/" end>
+        I dag
+      </NavLink>
       <NavLink to="/afventer">
         Afventer godkendelse
         {pending > 0 && <span className="nav-count">{pending}</span>}
       </NavLink>
+      <NavLink to="/kunder">Kunder</NavLink>
+      <NavLink to="/sider">Sider</NavLink>
       <NavLink to="/forbrug">Forbrug</NavLink>
+      <NavLink to="/automatik">Automatik</NavLink>
       <NavLink to="/aktivitet">Aktivitet</NavLink>
     </nav>
+  );
+}
+
+/** A stopped automation is the one state that has to be visible on every screen. */
+function StopBanner() {
+  const automation = useSubscription<Automation>(useCallback((d, e) => watchAutomation(d, e), []));
+  if (!automation.data?.pauseret) return null;
+
+  return (
+    <Link className="stop-banner" to="/automatik">
+      Automatikken er stoppet
+      {automation.data.årsag && <span className="stop-banner-reason"> — {automation.data.årsag}</span>}
+    </Link>
   );
 }
 
@@ -64,13 +86,17 @@ export default function App() {
       </header>
 
       <Navigation />
+      <StopBanner />
 
       <main className="content">
         <Routes>
-          <Route path="/" element={<Navigate to="/afventer" replace />} />
-          <Route path="/sider" element={<SitesPage />} />
+          <Route path="/" element={<TodayPage />} />
           <Route path="/afventer" element={<PendingPage />} />
+          <Route path="/kunder" element={<CustomersPage />} />
+          <Route path="/kunder/:kundeId" element={<CustomerDetailPage />} />
+          <Route path="/sider" element={<SitesPage />} />
           <Route path="/forbrug" element={<UsagePage />} />
+          <Route path="/automatik" element={<AutomationPage />} />
           <Route path="/aktivitet" element={<ActivityPage />} />
           <Route
             path="*"

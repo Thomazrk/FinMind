@@ -52,6 +52,14 @@ service cloud.firestore {
         && request.resource.data.afgjortTidspunkt == request.time;
     }
 
+    // Nødstoppet og indstillingerne. Det er de eneste dokumenter panelet må
+    // skrive frit til — de stopper ting, de sætter ikke noget i gang, og
+    // arbejderne læser dem med Admin SDK'et, som går uden om de her regler.
+    match /system/{dokument} {
+      allow read: if ejeren();
+      allow write: if ejeren() && dokument in ['automatik', 'indstillinger'];
+    }
+
     // Aktivitetsloggen kan kun få nye poster lagt til, aldrig rettet eller slettet.
     match /aktivitet/{postId} {
       allow read: if ejeren();

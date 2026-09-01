@@ -23,12 +23,39 @@ Sådan er reglen håndhævet i det der ligger her:
 Merge, deploy og Slack-kvittering hører til baggrundsjobs der reagerer på
 `status === "godkendt"`. De findes ikke endnu — se byggerækkefølgen nedenfor.
 
+## Nødstoppet — kontrakten arbejderne skal følge
+
+`system/automatik` er bremsen. Panelet skriver den; **arbejderne skal læse den**,
+og det er dér den bliver håndhævet. Firestore-regler kan ikke gøre det: en Cloud
+Function kører på Admin SDK'et, som går uden om reglerne.
+
+Hver baggrundsarbejder — klassificering, ændringsbygger, deploy, Slack-svar —
+skal hente `system/automatik`, **før** den går i gang, og stoppe hvis:
+
+| Felt | Betyder |
+| --- | --- |
+| `pauseret: true` | Alt står stille, for alle kunder. Gør ingenting. |
+| `pausedeKunder` indeholder kundens id | Spring den kunde over. Resten kører videre. |
+| `månedsbudgetKroner` er nået | Månedens forbrug i `forbrug/{måned}.totalKroner` har ramt loftet. Stop, og skriv en post i `aktivitet`. |
+
+Et stop rører ikke ved forslag der allerede ligger og venter — dem kan du stadig
+godkende. Det er kun det automatiske arbejde der holder op.
+
+Det er den ene ting, der ikke kan bygges bagefter: når trin 4 først kører Claude
+Code mod kundernes repos uden opsyn, skal bremsen være der i forvejen.
+
 ## Hvor langt er vi
 
 Byggerækkefølgen fra projektbeskrivelsen:
 
 - [x] **1. Skelettet** — Firestore-model, auth, og panelet der viser opgaver fra
       håndindtastede dokumenter. Ingen Slack, ingen AI.
+- [x] **Forsiden "I dag"** — hvad venter, hvad er i stykker, hvad fornyer, hvem
+      er over sine supportminutter, er budgetloftet nået.
+- [x] **Kunden som rygrad** — kundeliste og kundeside med aftale, supportforbrug,
+      dækning, sider og hele opgavehistorikken.
+- [x] **Nødstop og budgetloft** — kontrolfladen står; håndhævelsen ligger hos
+      arbejderne, se kontrakten ovenfor.
 - [ ] 2. Slack ind — event-modtager, kanal-til-kunde-kobling.
 - [ ] 3. Klassificering — Claude API udfylder `klassifikation`, logger tokens.
 - [ ] 4. Kodeændringer — Claude Code mod kundens repo, branch, PR, preview-URL.
@@ -172,15 +199,25 @@ opgaver/{id}    kundeId, sideId, slackBeskedId, slackPermalink, beskedTekst,
 forbrug/{måned} totalTokens, totalKroner, perKunde { kundeId: kroner }
 
 aktivitet/{id}  tidspunkt, handling, opgaveId, kundeId, udførtAf, detalje
+
+system/automatik      pauseret, pausetAf, pausetTidspunkt, årsag,
+                      pausedeKunder[], månedsbudgetKroner
+system/indstillinger  timepris
 ```
 
-To tilføjelser til modellen fra beskrivelsen:
+Tilføjelser til modellen fra beskrivelsen:
 
 - **`aktivitet`** — aktivitetsskærmen skal have et sted at læse fra. Poster
   skrives af panelet ved hver afgørelse og af baggrundsjobs ved automatiske
   kørsler.
 - **`opgaver.resumé`** — den ene sætning om hvad ændringen gør. Beskrivelsen
   beder om den på skærmen, så den skal stå i dokumentet.
+- **`system/automatik`** — nødstoppet og budgetloftet, se kontrakten ovenfor.
+- **`system/indstillinger.timepris`** — uden en timepris kan panelet ikke regne
+  ud, hvad en kunde er værd, når din egen tid er trukket fra. Er den ikke sat,
+  siger kundesiden det i stedet for at gætte.
+- **`kunder.supportMinutterPrMåned`** — brugte minutter uden et loft at måle mod
+  er bare et tal.
 
 `diff` er en liste af `{ filnavn, før, efter }`. Ændringsbyggeren gemmer begge
 versioner ordret, så panelet ikke skal fortolke unified diff for at vise før og
