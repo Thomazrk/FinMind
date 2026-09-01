@@ -1,0 +1,44 @@
+---
+import { plans, newSite } from "../data/plans";
+
+const kr = new Intl.NumberFormat("da-DK");
+---
+
+<section id="pakker">
+  <div class="stack">
+    <p class="eyebrow">Abonnement</p>
+    <h2>Du betaler pr. måned og kan sige op med en måneds varsel</h2>
+    <p class="measure soft">
+      Alle pakker indeholder hosting, SSL-certifikat, sikkerhedsopdateringer, backup og
+      overvågning af, om siden er oppe. Supportminutterne er den tid, vi bruger på dine
+      rettelser. Bruger du dem ikke, ruller de ikke videre — og vi sender ikke en regning,
+      fordi du kom til at skrive to gange.
+    </p>
+
+    <div class="plans">
+      {
+        plans.map((plan) => (
+          <div class="plan">
+            <span class="plan-name">{plan.navn}</span>
+            <span class="plan-price">
+              <b>{kr.format(plan.prisKroner)} kr.</b> <span>/md</span>
+            </span>
+            <ul class="plan-includes">
+              {plan.indeholder.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+
+      <div class="build-line">
+        <div>
+          <span class="plan-name">{newSite.navn}</span>
+          <p class="soft small">{newSite.beskrivelse}</p>
+        </div>
+        <span class="plan-price"><b>{newSite.prisTekst}</b></span>
+      </div>
+    </div>
+  </div>
+</section>

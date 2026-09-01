@@ -1,25 +1,70 @@
 # Studiets forside
 
-Én statisk HTML-fil. Åbn `index.html`, eller læg mappen på Cloudflare Pages.
+Astro-projekt, bygget til Cloudflare Pages — samme stak som kundesiderne.
+
+```sh
+npm install
+npm run dev      # http://localhost:4321
+npm run build    # statisk build i dist/
+npm run check    # typetjek af .astro-filerne
+```
 
 ## Ret det her, før den går live
 
-Alt herunder er pladsholdere. Listen står også som kommentar øverst i
-`index.html`.
+**Alt der identificerer dig står i `src/data/studio.ts`.** Det var hele pointen
+med at flytte den fra én HTML-fil: navn, mail, telefon og CVR lå spredt over
+seks steder. Nu er der ét.
 
-| Hvad | Nu | Står |
+| Hvad | Nu | Hvor |
 | --- | --- | --- |
-| Navn | Studiet | 6 steder — søg og erstat |
-| E-mail | hej@studiet.dk | kontaktafsnit + `mailto:` |
-| Telefon | 20 00 00 00 | kontaktafsnit + `tel:` |
-| CVR | 00 00 00 00 | sidefod |
-| By | Aarhus | sidefod |
-| Priser | 1.200 / 2.400 / 3.600 kr. og fra 18.000 kr. | pakkeafsnittet |
+| Navn | Studiet | `src/data/studio.ts` |
+| Domæne | https://studiet.dk | `src/data/studio.ts` — bruges til kanoniske adresser og sitemap |
+| E-mail, telefon, CVR, by | pladsholdere | `src/data/studio.ts` |
+| Priser | 1.200 / 2.400 / 3.600 kr. og fra 18.000 kr. | `src/data/plans.ts` |
+| Hvad der ikke er dækket | syv punkter | `src/data/plans.ts` |
+| Demoens beskeder | tre opdigtede kunder | `src/data/demo.ts` |
 
-**Priserne er de vigtigste.** De er hentet fra kontrolpanelets testdata og er
-ikke et forslag til, hvad du skal tage. Kunderne i demoen — Bageriet på Torvet,
+**Priserne er de vigtigste.** De stammer fra kontrolpanelets testdata og er ikke
+et forslag til, hvad du skal tage. Kunderne i demoen — Bageriet på Torvet,
 Vestergaard VVS, Nordhavn Tandklinik — er opdigtede. Byt dem ud med rigtige, når
 du har fået lov til at nævne dem.
+
+## Deploy på Cloudflare Pages
+
+| Indstilling | Værdi |
+| --- | --- |
+| Framework preset | Astro |
+| Build command | `npm run build` |
+| Output directory | `dist` |
+| Root directory | `studieside` |
+
+`public/_headers` sætter sikkerhedsheadere og cache på de byggede filer;
+Cloudflare Pages læser den automatisk. Husk at rette `url` i
+`src/data/studio.ts`, når domænet er sat op — ellers peger de kanoniske adresser
+og sitemappet på pladsholderen.
+
+## Sådan hænger den sammen
+
+```
+src/
+  data/         alt indhold der skal rettes uden at røre markup
+    studio.ts     navn, kontakt, domæne
+    plans.ts      pakker, priser, hvad der ikke er dækket
+    demo.ts       forsidens tre beskeder
+    steps.ts      de fire trin i "Sådan virker det"
+  layouts/
+    Base.astro    html-skal, meta, skrifter, kanonisk adresse
+  components/     ét afsnit pr. fil
+  styles/
+    global.css    hele designet, ét sted
+  pages/
+    index.astro   rækkefølgen af afsnit
+```
+
+Kun ét afsnit har JavaScript: `LoopDemo.astro`. Scriptet importerer det samme
+`demo.ts`, som markuppen bliver bygget af, så der er én kilde til de tre
+beskeder. Første trin står tændt allerede i HTML'en, så demoen ikke er tom, hvis
+scriptet er langsomt eller slået fra.
 
 ## Hvorfor siden ser sådan ud
 
@@ -42,14 +87,14 @@ indstilling, der slår det fra.
   tre-kolonne feature-grid, ingen priskort med "mest populær".
 - Pakkerne står som en prisliste med rå tal i monospace, ikke som salgskort.
 - Skrifter: Familjen Grotesk til overskrifter, Source Serif 4 til brødtekst,
-  JetBrains Mono til tal. Alle fra Google Fonts med rigtige reservestakke.
-- Lys og mørk tilstand, og tokens er sat så et bevidst temavalg vinder over
+  JetBrains Mono til tal — alle fra Google Fonts med rigtige reservestakke.
+- Lys og mørk tilstand, med tokens sat så et bevidst temavalg vinder over
   styresystemets.
 - `prefers-reduced-motion` slår demoens optrapning fra uden at fjerne indholdet.
 
-## Når den skal i luften
+## Når den skal vokse
 
-Den er skrevet som én fil, så den er nem at læse og rette. Skal den vokse —
-cases, blog, flere sider — så flyt den til et Astro-projekt som kundesiderne,
-og læg den på Cloudflare Pages. Så er din egen side bygget på samme stak, som du
-sælger.
+Cases og blog er en indholdssamling i Astro: læg `src/content.config.ts` og
+`src/content/cases/*.md` ind, og lav `src/pages/cases/[...slug].astro`. Data
+ligger allerede adskilt fra markup, så det bliver en tilføjelse — ikke en
+ombygning.

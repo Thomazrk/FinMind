@@ -1,0 +1,164 @@
+---
+/**
+ * Forsidens argument. Ikke ord om sløjfen — sløjfen selv, med de samme trin som
+ * kontrolpanelet kører: besked, vurdering, rettelse, godkendelse, live.
+ *
+ * Første trin er tændt i markuppen, så demoen aldrig står tom, hvis JavaScript
+ * er langsomt eller slået fra. Resten trappes op af scriptet.
+ */
+import { demoCases } from "../data/demo";
+
+const first = demoCases[0];
+---
+
+<div class="demo">
+  <div class="demo-bar">
+    <span id="demo-channel">{first.channel}</span>
+    <span id="demo-clock">i dag, {first.time}</span>
+  </div>
+  <div class="demo-body">
+    <div class="msg">
+      <div class="msg-avatar" id="demo-initials">{first.initials}</div>
+      <div>
+        <p class="msg-who">
+          <span id="demo-sender">{first.sender}</span>
+          <span id="demo-time">{first.time}</span>
+        </p>
+        <p class="msg-text" id="demo-text">{first.text}</p>
+      </div>
+    </div>
+
+    <ol class="steps" id="demo-steps">
+      {
+        first.steps.map((step, i) => (
+          <li class:list={["step", step.kind, { on: i === 0 }]}>
+            <span class="step-dot" />
+            <div>
+              <p class="step-what">{step.what}</p>
+              <p class="step-detail">{step.detail}</p>
+              {step.diff && (
+                <div class="diff" style="margin-top:0.4rem">
+                  <div class="diff-name">før / efter</div>
+                  <div class="diff-line diff-before">{step.diff.before}</div>
+                  <div class="diff-line diff-after">{step.diff.after}</div>
+                </div>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div id="demo-verdict">
+      <p class:list={["verdict", first.verdict.tone]}>{first.verdict.text}</p>
+    </div>
+  </div>
+</div>
+
+<div class="picker" id="demo-picker" role="group" aria-label="Vælg en besked">
+  {
+    demoCases.map((c, i) => (
+      <button class="chip" type="button" data-index={i} aria-pressed={i === 0 ? "true" : "false"}>
+        {c.chip}
+      </button>
+    ))
+  }
+</div>
+
+<p class="demo-note">Eksempel med opdigtede kunder. Sådan ser sløjfen ud hos os.</p>
+
+<script>
+  import { demoCases } from "../data/demo";
+
+  const picker = document.getElementById("demo-picker");
+  const stepsEl = document.getElementById("demo-steps");
+  const verdictEl = document.getElementById("demo-verdict");
+  if (picker && stepsEl && verdictEl) {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let timers: number[] = [];
+
+    const set = (id: string, text: string) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    function show(index: number) {
+      timers.forEach(clearTimeout);
+      timers = [];
+
+      const c = demoCases[index];
+      if (!c) return;
+
+      set("demo-channel", c.channel);
+      set("demo-clock", `i dag, ${c.time}`);
+      set("demo-sender", c.sender);
+      set("demo-initials", c.initials);
+      set("demo-time", c.time);
+      set("demo-text", c.text);
+
+      picker!.querySelectorAll("button").forEach((b, i) => {
+        b.setAttribute("aria-pressed", i === index ? "true" : "false");
+      });
+
+      stepsEl!.replaceChildren(
+        ...c.steps.map((step) => {
+          const li = document.createElement("li");
+          li.className = ["step", step.kind ?? ""].join(" ").trim();
+
+          const dot = document.createElement("span");
+          dot.className = "step-dot";
+
+          const body = document.createElement("div");
+          const what = document.createElement("p");
+          what.className = "step-what";
+          what.textContent = step.what;
+          const detail = document.createElement("p");
+          detail.className = "step-detail";
+          detail.textContent = step.detail;
+          body.append(what, detail);
+
+          if (step.diff) {
+            const diff = document.createElement("div");
+            diff.className = "diff";
+            diff.style.marginTop = "0.4rem";
+            const name = document.createElement("div");
+            name.className = "diff-name";
+            name.textContent = "før / efter";
+            const before = document.createElement("div");
+            before.className = "diff-line diff-before";
+            before.textContent = step.diff.before;
+            const after = document.createElement("div");
+            after.className = "diff-line diff-after";
+            after.textContent = step.diff.after;
+            diff.append(name, before, after);
+            body.append(diff);
+          }
+
+          li.append(dot, body);
+          return li;
+        }),
+      );
+
+      const verdict = document.createElement("p");
+      verdict.className = `verdict ${c.verdict.tone}`;
+      verdict.textContent = c.verdict.text;
+      verdictEl!.replaceChildren(verdict);
+
+      // Første trin står tændt med det samme; resten trappes op.
+      stepsEl!.querySelectorAll<HTMLElement>(".step").forEach((li, i) => {
+        if (reduce || i === 0) {
+          li.classList.add("on");
+          return;
+        }
+        timers.push(window.setTimeout(() => li.classList.add("on"), 420 + i * 620));
+      });
+    }
+
+    picker.querySelectorAll("button").forEach((b) => {
+      b.addEventListener("click", () => show(Number(b.dataset.index)));
+    });
+
+    // Kør den første igennem, så optrapningen også ses ved sideindlæsning.
+    show(0);
+  }
+</script>

@@ -1,0 +1,18 @@
+---
+import { studio } from "../data/studio";
+---
+
+<section id="kontakt">
+  <div class="stack measure">
+    <p class="eyebrow">Kontakt</p>
+    <h2>Skriv, hvad du har brug for. Du får svar inden for en arbejdsdag.</h2>
+    <p class="soft">
+      Er du i tvivl om, hvilken pakke der passer, så skriv hvad du har i dag og hvor tit du
+      plejer at rette i det. Så siger jeg, hvad jeg ville vælge.
+    </p>
+    <div class="contact-lines">
+      <a href={`mailto:${studio.email}`}>{studio.email}</a>
+      <a href={`tel:${studio.telefonLink}`}>{studio.telefon}</a>
+    </div>
+  </div>
+</section>

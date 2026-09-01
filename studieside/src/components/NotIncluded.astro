@@ -1,0 +1,17 @@
+---
+import { notIncluded } from "../data/plans";
+---
+
+<section id="ikke-med">
+  <div class="stack measure">
+    <p class="eyebrow">For en ordens skyld</p>
+    <h2>Det her er ikke med i abonnementet</h2>
+    <p class="soft">
+      Vi laver det gerne — det koster bare ekstra, og du får en pris, før vi går i gang.
+      Vi vil hellere sige det nu end på en faktura.
+    </p>
+    <ul class="excluded">
+      {notIncluded.map((item) => <li>{item}</li>)}
+    </ul>
+  </div>
+</section>

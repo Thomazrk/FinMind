@@ -1,0 +1,23 @@
+---
+import { howItWorks } from "../data/steps";
+---
+
+<section id="saadan">
+  <div class="stack">
+    <p class="eyebrow">Sådan virker det</p>
+    <h2>Fire trin, og et af dem er et menneske</h2>
+
+    <ol class="flow">
+      {
+        howItWorks.map((step) => (
+          <li>
+            <div>
+              <h3>{step.overskrift}</h3>
+              <p>{step.tekst}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
