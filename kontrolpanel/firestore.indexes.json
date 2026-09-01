@@ -1,0 +1,29 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "opgaver",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "modtagetTidspunkt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "opgaver",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "kundeId", "order": "ASCENDING" },
+        { "fieldPath": "modtagetTidspunkt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "aktivitet",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "kundeId", "order": "ASCENDING" },
+        { "fieldPath": "tidspunkt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

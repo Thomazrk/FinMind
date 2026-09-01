@@ -1,0 +1,248 @@
+{
+  "kunder": [
+    {
+      "id": "bagerietpaatorvet",
+      "navn": "Bageriet på Torvet",
+      "slackKanalId": "C08BAGERI01",
+      "repo": "studie/bageriet-paa-torvet",
+      "domæne": "bagerietpaatorvet.dk",
+      "pakke": "Vedligehold lille",
+      "månedspris": 1200,
+      "fornyelsesdato": "2026-11-01",
+      "supportMinutterDenneMåned": 42
+    },
+    {
+      "id": "nordhavnstandklinik",
+      "navn": "Nordhavn Tandklinik",
+      "slackKanalId": "C08TAND0022",
+      "repo": "studie/nordhavn-tandklinik",
+      "domæne": "nordhavntand.dk",
+      "pakke": "Vedligehold mellem",
+      "månedspris": 2400,
+      "fornyelsesdato": "2026-09-15",
+      "supportMinutterDenneMåned": 88
+    },
+    {
+      "id": "vestergaardvvs",
+      "navn": "Vestergaard VVS",
+      "slackKanalId": "C08VVS00931",
+      "repo": "studie/vestergaard-vvs",
+      "domæne": "vestergaardvvs.dk",
+      "pakke": "Vedligehold lille",
+      "månedspris": 1200,
+      "fornyelsesdato": "2027-01-10",
+      "supportMinutterDenneMåned": 12
+    }
+  ],
+  "sider": [
+    {
+      "id": "bageriet-forside",
+      "kundeId": "bagerietpaatorvet",
+      "repo": "studie/bageriet-paa-torvet",
+      "produktionsUrl": "https://bagerietpaatorvet.dk",
+      "sidsteDeploy": "2026-08-24T09:12:00.000Z",
+      "status": "ændringVenter"
+    },
+    {
+      "id": "tandklinik-forside",
+      "kundeId": "nordhavnstandklinik",
+      "repo": "studie/nordhavn-tandklinik",
+      "produktionsUrl": "https://nordhavntand.dk",
+      "sidsteDeploy": "2026-08-29T15:41:00.000Z",
+      "status": "live"
+    },
+    {
+      "id": "vvs-forside",
+      "kundeId": "vestergaardvvs",
+      "repo": "studie/vestergaard-vvs",
+      "produktionsUrl": "https://vestergaardvvs.dk",
+      "sidsteDeploy": "2026-07-30T07:05:00.000Z",
+      "status": "live"
+    }
+  ],
+  "opgaver": [
+    {
+      "id": "opg-2026-09-01-bageri-aabningstider",
+      "kundeId": "bagerietpaatorvet",
+      "sideId": "bageriet-forside",
+      "slackBeskedId": "1756713120.004500",
+      "slackPermalink": "https://studie.slack.com/archives/C08BAGERI01/p1756713120004500",
+      "beskedTekst": "Hej! Vi lukker kl. 16 om lørdagen fra på lørdag i stedet for kl. 14. Kan du rette det på forsiden?",
+      "afsender": "Mette Krogh",
+      "modtagetTidspunkt": "2026-09-01T06:32:00.000Z",
+      "resumé": "Retter lørdagens lukketid fra 14.00 til 16.00 i åbningstidsblokken på forsiden.",
+      "klassifikation": {
+        "type": "tekstrettelse",
+        "estimatMinutter": 8,
+        "dækketAfAbonnement": true
+      },
+      "status": "afventer",
+      "branch": "auto/aabningstider-loerdag",
+      "prUrl": "https://github.com/studie/bageriet-paa-torvet/pull/48",
+      "previewUrl": "https://auto-aabningstider-loerdag.bageriet-paa-torvet.pages.dev",
+      "diff": [
+        {
+          "filnavn": "src/components/Aabningstider.astro",
+          "før": "<li>\n  <span>Lørdag</span>\n  <time datetime=\"07:00\">07.00</time>–<time datetime=\"14:00\">14.00</time>\n</li>",
+          "efter": "<li>\n  <span>Lørdag</span>\n  <time datetime=\"07:00\">07.00</time>–<time datetime=\"16:00\">16.00</time>\n</li>"
+        }
+      ],
+      "forbrug": { "inputTokens": 18422, "outputTokens": 1105, "kroner": 1.34 },
+      "afgjortAf": null,
+      "afgjortTidspunkt": null,
+      "afvisningsårsag": null
+    },
+    {
+      "id": "opg-2026-08-31-tandklinik-webshop",
+      "kundeId": "nordhavnstandklinik",
+      "sideId": "tandklinik-forside",
+      "slackBeskedId": "1756640400.001200",
+      "slackPermalink": "https://studie.slack.com/archives/C08TAND0022/p1756640400001200",
+      "beskedTekst": "Vi vil gerne kunne sælge tandblegningssæt direkte fra siden med betaling og lager. Hvad koster det?",
+      "afsender": "Jonas Bech",
+      "modtagetTidspunkt": "2026-08-31T10:20:00.000Z",
+      "resumé": "Webshop med betaling og lagerstyring — over grænsen, så der er ikke skrevet kode.",
+      "klassifikation": {
+        "type": "nyside",
+        "estimatMinutter": 960,
+        "dækketAfAbonnement": false
+      },
+      "status": "tilbudSendt",
+      "branch": null,
+      "prUrl": null,
+      "previewUrl": null,
+      "diff": [],
+      "forbrug": { "inputTokens": 2140, "outputTokens": 388, "kroner": 0.21 },
+      "afgjortAf": null,
+      "afgjortTidspunkt": null,
+      "afvisningsårsag": null
+    },
+    {
+      "id": "opg-2026-08-30-vvs-telefon",
+      "kundeId": "vestergaardvvs",
+      "sideId": "vvs-forside",
+      "slackBeskedId": "1756554000.000900",
+      "slackPermalink": "https://studie.slack.com/archives/C08VVS00931/p1756554000000900",
+      "beskedTekst": "Vores vagttelefon er skiftet til 40 12 88 90. Den gamle skal væk alle steder.",
+      "afsender": "Lars Vestergaard",
+      "modtagetTidspunkt": "2026-08-30T11:00:00.000Z",
+      "resumé": "Udskifter vagttelefonnummeret i sidefoden og i kontaktblokken.",
+      "klassifikation": {
+        "type": "tekstrettelse",
+        "estimatMinutter": 12,
+        "dækketAfAbonnement": true
+      },
+      "status": "godkendt",
+      "branch": "auto/ny-vagttelefon",
+      "prUrl": "https://github.com/studie/vestergaard-vvs/pull/17",
+      "previewUrl": "https://auto-ny-vagttelefon.vestergaard-vvs.pages.dev",
+      "diff": [
+        {
+          "filnavn": "src/components/Footer.astro",
+          "før": "<a href=\"tel:+4540117722\">40 11 77 22</a>",
+          "efter": "<a href=\"tel:+4540128890\">40 12 88 90</a>"
+        }
+      ],
+      "forbrug": { "inputTokens": 9880, "outputTokens": 640, "kroner": 0.74 },
+      "afgjortAf": "mig@studiet.dk",
+      "afgjortTidspunkt": "2026-08-30T19:40:00.000Z",
+      "afvisningsårsag": null
+    },
+    {
+      "id": "opg-2026-08-28-bageri-billede",
+      "kundeId": "bagerietpaatorvet",
+      "sideId": "bageriet-forside",
+      "slackBeskedId": "1756381200.003300",
+      "slackPermalink": "https://studie.slack.com/archives/C08BAGERI01/p1756381200003300",
+      "beskedTekst": "Kan I lægge det nye billede af rugbrødet øverst i stedet for kagen?",
+      "afsender": "Mette Krogh",
+      "modtagetTidspunkt": "2026-08-28T07:00:00.000Z",
+      "resumé": "Bytter heltebilledet ud med rugbrødsfotoet.",
+      "klassifikation": {
+        "type": "billede",
+        "estimatMinutter": 15,
+        "dækketAfAbonnement": true
+      },
+      "status": "afvist",
+      "branch": "auto/nyt-heltebillede",
+      "prUrl": "https://github.com/studie/bageriet-paa-torvet/pull/47",
+      "previewUrl": "https://auto-nyt-heltebillede.bageriet-paa-torvet.pages.dev",
+      "diff": [
+        {
+          "filnavn": "src/pages/index.astro",
+          "før": "<Hero billede={kage} alt=\"Kage på fad\" />",
+          "efter": "<Hero billede={rugbroed} alt=\"Rugbrød\" />"
+        }
+      ],
+      "forbrug": { "inputTokens": 12040, "outputTokens": 820, "kroner": 0.93 },
+      "afgjortAf": "mig@studiet.dk",
+      "afgjortTidspunkt": "2026-08-28T20:15:00.000Z",
+      "afvisningsårsag": "Billedet er for mørkt i toppen — bad Mette om et nyt foto i dagslys."
+    }
+  ],
+  "forbrug": [
+    {
+      "id": "2026-09",
+      "totalTokens": 19527,
+      "totalKroner": 1.34,
+      "perKunde": { "bagerietpaatorvet": 1.34 }
+    },
+    {
+      "id": "2026-08",
+      "totalTokens": 25908,
+      "totalKroner": 1.88,
+      "perKunde": {
+        "bagerietpaatorvet": 0.93,
+        "nordhavnstandklinik": 0.21,
+        "vestergaardvvs": 0.74
+      }
+    }
+  ],
+  "aktivitet": [
+    {
+      "id": "akt-005",
+      "tidspunkt": "2026-09-01T06:34:00.000Z",
+      "handling": "automatiskKørsel",
+      "opgaveId": "opg-2026-09-01-bageri-aabningstider",
+      "kundeId": "bagerietpaatorvet",
+      "udførtAf": "automatik",
+      "detalje": "Ændringsbygger åbnede pull request 48 på branch auto/aabningstider-loerdag"
+    },
+    {
+      "id": "akt-004",
+      "tidspunkt": "2026-08-31T10:22:00.000Z",
+      "handling": "tilbudSendt",
+      "opgaveId": "opg-2026-08-31-tandklinik-webshop",
+      "kundeId": "nordhavnstandklinik",
+      "udførtAf": "mig@studiet.dk",
+      "detalje": "Estimat 16 timer — uden for abonnementet, tilbud sendt på mail"
+    },
+    {
+      "id": "akt-003",
+      "tidspunkt": "2026-08-30T19:40:00.000Z",
+      "handling": "godkendt",
+      "opgaveId": "opg-2026-08-30-vvs-telefon",
+      "kundeId": "vestergaardvvs",
+      "udførtAf": "mig@studiet.dk",
+      "detalje": "Godkendt til udgivelse — branch auto/ny-vagttelefon"
+    },
+    {
+      "id": "akt-002",
+      "tidspunkt": "2026-08-28T20:15:00.000Z",
+      "handling": "afvist",
+      "opgaveId": "opg-2026-08-28-bageri-billede",
+      "kundeId": "bagerietpaatorvet",
+      "udførtAf": "mig@studiet.dk",
+      "detalje": "Afvist — Billedet er for mørkt i toppen"
+    },
+    {
+      "id": "akt-001",
+      "tidspunkt": "2026-08-28T07:02:00.000Z",
+      "handling": "automatiskKørsel",
+      "opgaveId": "opg-2026-08-28-bageri-billede",
+      "kundeId": "bagerietpaatorvet",
+      "udførtAf": "automatik",
+      "detalje": "Ændringsbygger åbnede pull request 47 på branch auto/nyt-heltebillede"
+    }
+  ]
+}

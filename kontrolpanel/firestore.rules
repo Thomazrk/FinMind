@@ -1,0 +1,68 @@
+rules_version = '2';
+
+// Ét menneske har adgang. Alt andet afvises.
+//
+// Bemærk: reglernes sprog accepterer kun ASCII i identifikatorer. Feltnavne med
+// danske tegn (udførtAf, afvisningsårsag, resumé …) skal skrives i firkantede
+// parenteser: request.resource.data['udførtAf']. Wildcards i match-stier må
+// heller ikke indeholde æ, ø eller å.
+//
+// Sæt UID'et nedenfor til din egen Firebase Auth-bruger:
+//   firebase auth:export brugere.json --project <projekt>
+// eller læs det i Firebase-konsollen under Authentication → Users.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function ejeren() {
+      return request.auth != null && request.auth.uid == 'ERSTAT_MED_DIT_UID';
+    }
+
+    // Kunder, sider og forbrug skrives af backend'en (Admin SDK, som går uden om
+    // disse regler). Panelet læser dem kun.
+    match /kunder/{kundeId} {
+      allow read: if ejeren();
+      allow write: if false;
+    }
+
+    match /sider/{sideId} {
+      allow read: if ejeren();
+      allow write: if false;
+    }
+
+    match /forbrug/{maanedId} {
+      allow read: if ejeren();
+      allow write: if false;
+    }
+
+    // Opgaver: panelet må kun afgøre dem — og kun dem der stadig afventer.
+    // Den ufravigelige regel lever her: intet felt der styrer udgivelse kan
+    // sættes af andre end mig, og status kan kun flyttes fra 'afventer'.
+    match /opgaver/{opgaveId} {
+      allow read: if ejeren();
+      allow create, delete: if false;
+      allow update: if ejeren()
+        && resource.data.status == 'afventer'
+        && request.resource.data.status in ['godkendt', 'afvist']
+        && request.resource.data.diff == resource.data.diff
+        && request.resource.data.branch == resource.data.branch
+        && request.resource.data.prUrl == resource.data.prUrl
+        && request.resource.data.kundeId == resource.data.kundeId
+        && request.resource.data.beskedTekst == resource.data.beskedTekst
+        && request.resource.data.afgjortAf == request.auth.token.email
+        && request.resource.data.afgjortTidspunkt == request.time;
+    }
+
+    // Aktivitetsloggen kan kun få nye poster lagt til, aldrig rettet eller slettet.
+    match /aktivitet/{postId} {
+      allow read: if ejeren();
+      allow create: if ejeren()
+        && request.resource.data['udførtAf'] == request.auth.token.email
+        && request.resource.data.tidspunkt == request.time;
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
