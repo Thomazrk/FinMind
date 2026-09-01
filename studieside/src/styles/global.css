@@ -418,3 +418,190 @@ a:focus-visible, button:focus-visible {
 .small {
   font-size: 0.92rem;
 }
+
+/* ---------- prøv selv ---------- */
+
+.try {
+  margin-top: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.try label {
+  font-family: var(--display);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.try-row {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.try input {
+  flex: 1 1 18rem;
+  min-width: 0;
+  font-family: var(--prose);
+  font-size: 0.98rem;
+  padding: 0.5rem 0.65rem;
+  min-height: 2.6rem;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.try input::placeholder { color: var(--faint); }
+.try input:focus { border-color: var(--accent); }
+
+.chip-send {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  min-height: 2.6rem;
+}
+
+.chip-send:hover { border-color: var(--accent); filter: brightness(1.12); }
+
+.try-note,
+.try-caveat {
+  font-family: var(--data);
+  font-size: 0.72rem;
+  color: var(--faint);
+  margin: 0;
+}
+
+.try-caveat { margin-top: 0.4rem; }
+
+/* ---------- pakkevælger ---------- */
+
+.picker-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  margin-top: 0.3rem;
+}
+
+.picker-form fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.picker-form legend {
+  padding: 0;
+  font-family: var(--display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.45rem;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  padding: 0.5rem 0.75rem;
+  min-height: 2.6rem;
+  justify-content: center;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.option:hover { border-color: var(--ink); }
+
+.option:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.option:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.option-label {
+  font-family: var(--display);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.option-detail {
+  font-family: var(--data);
+  font-size: 0.72rem;
+  color: var(--faint);
+}
+
+.option:has(input:checked) .option-detail { color: var(--accent-ink); opacity: 0.75; }
+
+.result {
+  display: block;
+  margin-top: 0.4rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  background: var(--surface);
+}
+
+.result-name {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.result-price {
+  font-family: var(--data);
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin-top: 0.1rem;
+}
+
+.result-why {
+  list-style: none;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-family: var(--data);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.result-why li::before { content: "· "; color: var(--faint); }
+
+.result-note {
+  margin-top: 0.7rem;
+  font-size: 0.93rem;
+  color: var(--muted);
+}
+
+/*
+ * Pakkevælgeren er en fortsættelse af prislisten, ikke et nyt emne — så den
+ * skal ikke skilles fra med endnu en streg lige under den forrige.
+ */
+#hvilken-pakke {
+  border-top: 0;
+  padding-top: 0.6rem;
+}

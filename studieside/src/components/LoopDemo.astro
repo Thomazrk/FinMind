@@ -67,8 +67,26 @@ const first = demoCases[0];
 
 <p class="demo-note">Eksempel med opdigtede kunder. Sådan ser sløjfen ud hos os.</p>
 
+<form class="try" id="demo-try">
+  <label for="demo-input">Eller skriv din egen — hvad ville du bede om?</label>
+  <div class="try-row">
+    <input
+      id="demo-input"
+      name="besked"
+      type="text"
+      autocomplete="off"
+      placeholder="Fx: vores nye telefonnummer er 40 12 88 90"
+    />
+    <button type="submit" class="chip chip-send">Se hvad der sker</button>
+  </div>
+  <p class="try-note">
+    Det du skriver, bliver i din browser. Vi får det ikke at se.
+  </p>
+</form>
+
 <script>
   import { demoCases } from "../data/demo";
+  import { classify, formatMinutes, COVERED_LIMIT_MINUTES } from "../data/classifier";
 
   const picker = document.getElementById("demo-picker");
   const stepsEl = document.getElementById("demo-steps");
@@ -156,6 +174,113 @@ const first = demoCases[0];
 
     picker.querySelectorAll("button").forEach((b) => {
       b.addEventListener("click", () => show(Number(b.dataset.index)));
+    });
+
+    /**
+     * Den besøgendes egen besked. Samme sløjfe, men trinnene bygges ud fra
+     * skønnet — og siger tydeligt fra, når nøgleord ikke rækker.
+     */
+    function showOwn(message: string) {
+      timers.forEach(clearTimeout);
+      timers = [];
+
+      const verdict = classify(message);
+      const now = new Date();
+      const clock = `${String(now.getHours()).padStart(2, "0")}.${String(now.getMinutes()).padStart(2, "0")}`;
+
+      set("demo-channel", "#din-kanal");
+      set("demo-clock", `i dag, ${clock}`);
+      set("demo-sender", "Dig");
+      set("demo-initials", "DU");
+      set("demo-time", clock);
+      set("demo-text", message);
+
+      picker!.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", "false"));
+
+      type Row = { what: string; detail: string; kind?: string };
+      let rows: Row[];
+
+      if (verdict.unsure) {
+        rows = [
+          { what: "Læst", detail: `${verdict.label} · ${verdict.touches}`, kind: "wait" },
+          { what: "Ingen kode skrevet", detail: "Vi gætter ikke på en pris, vi ikke kan stå inde for" },
+          { what: "Svar samme dag", detail: "Du hører fra os inden for en arbejdsdag", kind: "wait" },
+        ];
+      } else if (verdict.covered) {
+        rows = [
+          {
+            what: "Læst og vurderet",
+            detail: `${verdict.label} · anslået ${formatMinutes(verdict.minutes!)} · dækket af abonnementet`,
+          },
+          { what: "Rettelsen bygget", detail: verdict.touches },
+          { what: "Afventer godkendelse", detail: "Et menneske ser forslaget igennem", kind: "wait" },
+          { what: "Udgivet", detail: "Live samme dag", kind: "done" },
+        ];
+      } else {
+        rows = [
+          {
+            what: "Læst og vurderet",
+            detail: `${verdict.label} · anslået ${formatMinutes(verdict.minutes!)} · over grænsen på ${COVERED_LIMIT_MINUTES} minutter`,
+            kind: "wait",
+          },
+          { what: "Ingen kode skrevet", detail: verdict.touches },
+          { what: "Tilbud sendt", detail: "Pris og tidsplan, før der bliver rørt ved noget", kind: "wait" },
+        ];
+      }
+
+      stepsEl!.replaceChildren(
+        ...rows.map((row) => {
+          const li = document.createElement("li");
+          li.className = ["step", row.kind ?? ""].join(" ").trim();
+          const dot = document.createElement("span");
+          dot.className = "step-dot";
+          const body = document.createElement("div");
+          const what = document.createElement("p");
+          what.className = "step-what";
+          what.textContent = row.what;
+          const detail = document.createElement("p");
+          detail.className = "step-detail";
+          detail.textContent = row.detail;
+          body.append(what, detail);
+          li.append(dot, body);
+          return li;
+        }),
+      );
+
+      const p = document.createElement("p");
+      p.className = `verdict ${verdict.unsure ? "" : verdict.covered ? "live" : "quote"}`.trim();
+      p.textContent = verdict.unsure
+        ? "Den her kan nøgleord ikke afgøre — og så gætter vi ikke. Skriv til os, så får du et rigtigt svar samme dag."
+        : verdict.covered
+          ? "Dækket af abonnementet. Trukket fra månedens supportminutter, ingen ekstraregning."
+          : "Uden for abonnementet. Du får en pris, før der bliver rørt ved noget — ikke en regning bagefter.";
+
+      const caveat = document.createElement("p");
+      caveat.className = "try-caveat";
+      caveat.textContent =
+        "Skønnet her er lavet på nøgleord i din browser. Hos os læser vi beskeden ordentligt igennem.";
+
+      verdictEl!.replaceChildren(p, caveat);
+
+      stepsEl!.querySelectorAll<HTMLElement>(".step").forEach((li, i) => {
+        if (reduce || i === 0) {
+          li.classList.add("on");
+          return;
+        }
+        timers.push(window.setTimeout(() => li.classList.add("on"), 420 + i * 620));
+      });
+    }
+
+    const form = document.getElementById("demo-try") as HTMLFormElement | null;
+    const input = document.getElementById("demo-input") as HTMLInputElement | null;
+    form?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const message = input?.value.trim();
+      if (!message) {
+        input?.focus();
+        return;
+      }
+      showOwn(message);
     });
 
     // Kør den første igennem, så optrapningen også ses ved sideindlæsning.

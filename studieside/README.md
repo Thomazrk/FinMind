@@ -23,6 +23,8 @@ seks steder. Nu er der ét.
 | Priser | 1.200 / 2.400 / 3.600 kr. og fra 18.000 kr. | `src/data/plans.ts` |
 | Hvad der ikke er dækket | syv punkter | `src/data/plans.ts` |
 | Demoens beskeder | tre opdigtede kunder | `src/data/demo.ts` |
+| Skønnet bag "prøv selv" | nøgleord og minutter | `src/data/classifier.ts` |
+| Pakkeanbefalingen | tærskler og minutter pr. rettelse | `src/data/planPicker.ts` |
 
 **Priserne er de vigtigste.** De stammer fra kontrolpanelets testdata og er ikke
 et forslag til, hvad du skal tage. Kunderne i demoen — Bageriet på Torvet,
@@ -61,10 +63,30 @@ src/
     index.astro   rækkefølgen af afsnit
 ```
 
-Kun ét afsnit har JavaScript: `LoopDemo.astro`. Scriptet importerer det samme
-`demo.ts`, som markuppen bliver bygget af, så der er én kilde til de tre
-beskeder. Første trin står tændt allerede i HTML'en, så demoen ikke er tom, hvis
-scriptet er langsomt eller slået fra.
+To afsnit har JavaScript. `LoopDemo.astro` importerer det samme `demo.ts`, som
+markuppen bliver bygget af, så der er én kilde til de tre beskeder; første trin
+står tændt allerede i HTML'en, så demoen ikke er tom, hvis scriptet er langsomt
+eller slået fra. `PlanPicker.astro` regner anbefalingen ud af `planPicker.ts`.
+
+## De to interaktive dele
+
+**Skriv din egen besked.** Den besøgende kan skrive hvad som helst i demoen og se,
+hvilken slags svar hun ville få: opgavetype, tidsskøn, og om det er dækket af
+abonnementet eller ender med et tilbud. Grænsen er de samme 30 minutter som i
+kontrolpanelet.
+
+Tre ting holder den ærlig:
+
+- Teksten forlader aldrig browseren. Der er ingen bagende, og det står på siden.
+- Skønnet er nøgleord, ikke en model, og det står under svaret hver gang.
+- Rammer ingen nøgleord, **gætter den ikke**. Så siger den, at den skal læses i
+  hånden, og at man får svar samme dag. En demo, der altid har et svar, sælger
+  en præcision, du ikke kan holde.
+
+**Hvilken pakke.** Tre spørgsmål — hvor tit, hvor mange sider, vil du selv rette
+— og så et bud med regnestykket skrevet ud. Det svarer på det, kontaktafsnittet
+ellers beder folk skrive ind om. Lander skønnet tæt på pakkens supportminutter,
+siger den det, i stedet for at pege på den næste opad.
 
 ## Hvorfor siden ser sådan ud
 

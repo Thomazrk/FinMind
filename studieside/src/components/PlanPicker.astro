@@ -1,0 +1,109 @@
+---
+/**
+ * Svaret på det spørgsmål, kontaktafsnittet ellers beder folk skrive ind om:
+ * hvilken pakke passer til mig. Regnestykket står på skærmen, så det er et bud
+ * man kan efterprøve — ikke en sort boks der peger på den dyreste.
+ */
+import { CHANGES_PER_MONTH, SITE_SIZES } from "../data/planPicker";
+---
+
+<section id="hvilken-pakke">
+  <div class="stack">
+    <p class="eyebrow">Hvilken pakke</p>
+    <h2>Svar på tre spørgsmål, så siger jeg hvad jeg ville vælge</h2>
+
+    <form class="picker-form" id="plan-form">
+      <fieldset>
+        <legend>Hvor tit skal der rettes noget?</legend>
+        <div class="options">
+          {
+            CHANGES_PER_MONTH.map((o, i) => (
+              <label class="option">
+                <input type="radio" name="changes" value={o.value} checked={i === 0} />
+                <span class="option-label">{o.label}</span>
+                <span class="option-detail">{o.detail}</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Hvor mange sider har du?</legend>
+        <div class="options">
+          {
+            SITE_SIZES.map((o, i) => (
+              <label class="option">
+                <input type="radio" name="sites" value={o.value} checked={i === 0} />
+                <span class="option-label">{o.label}</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Vil du selv kunne rette tekst og billeder?</legend>
+        <div class="options">
+          <label class="option">
+            <input type="radio" name="selfEdit" value="nej" checked />
+            <span class="option-label">Nej, skriv bare til jer</span>
+          </label>
+          <label class="option">
+            <input type="radio" name="selfEdit" value="ja" />
+            <span class="option-label">Ja, det vil jeg gerne</span>
+          </label>
+        </div>
+      </fieldset>
+    </form>
+
+    <output class="result" id="plan-result" for="plan-form" aria-live="polite"></output>
+  </div>
+</section>
+
+<script>
+  import { recommend } from "../data/planPicker";
+
+  const form = document.getElementById("plan-form") as HTMLFormElement | null;
+  const result = document.getElementById("plan-result");
+
+  if (form && result) {
+    const kr = new Intl.NumberFormat("da-DK");
+
+    function update() {
+      const data = new FormData(form!);
+      const rec = recommend(
+        Number(data.get("changes")),
+        Number(data.get("sites")),
+        data.get("selfEdit") === "ja",
+      );
+
+      const name = document.createElement("p");
+      name.className = "result-name";
+      name.textContent = rec.plan.navn;
+
+      const price = document.createElement("p");
+      price.className = "result-price";
+      price.textContent = `${kr.format(rec.plan.prisKroner)} kr. om måneden`;
+
+      const why = document.createElement("ul");
+      why.className = "result-why";
+      rec.reasons.forEach((r) => {
+        const li = document.createElement("li");
+        li.textContent = r;
+        why.append(li);
+      });
+
+      const note = document.createElement("p");
+      note.className = "result-note";
+      note.textContent = rec.tight
+        ? "Det ligger tæt på pakkens supportminutter. Bliver det et mønster, siger jeg til — jeg flytter dig hellere op end at sende en ekstraregning."
+        : "Et bud, ikke et tilbud. Skriv til mig, hvis noget af det ikke passer på dig.";
+
+      result!.replaceChildren(name, price, why, note);
+    }
+
+    form.addEventListener("change", update);
+    update();
+  }
+</script>
