@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Vi bygger og passer hjemmesider for små virksomheder. Du skriver en besked, når noget skal laves om — vi retter det og viser dig resultatet, før det går live.">
+<meta name="color-scheme" content="light dark">
+</head>
+<body>
+<!--
+  ============================================================
+  RET DISSE, FØR SIDEN GÅR LIVE — alt herunder er pladsholdere
+  ============================================================
+  1. Navn ......... "Studiet" (søg og erstat i hele filen, står 6 steder)
+  2. E-mail ....... hej@studiet.dk
+  3. Telefon ...... 20 00 00 00
+  4. CVR .......... 00 00 00 00
+  5. By ........... Aarhus
+  6. Priser ....... 1.200 / 2.400 / 3.600 kr. og "fra 18.000 kr."
+                    — tallene stammer fra kontrolpanelets testdata.
+                    Sæt dine rigtige priser ind.
+  7. Kunderne i demoen (Bageriet på Torvet m.fl.) er opdigtede.
+     Byt dem ud med rigtige, når du har lov til at nævne dem.
+  ============================================================
+-->
+
+<title>Studiet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+
+<style>
+  /* Lys som udgangspunkt: kunderne er bagere og VVS'ere, ikke udviklere. */
+  :root {
+    --paper: #eeece6;
+    --surface: #f8f7f3;
+    --sunk: #e5e2da;
+    --ink: #191817;
+    --muted: #5f5b53;
+    --faint: #8a857b;
+    --rule: #cbc7bd;
+    --rule-soft: #ded9d0;
+    --accent: #1f4d45;
+    --accent-ink: #f2f5f3;
+    --waiting: #8a5a00;
+    --waiting-bg: #f6ecd8;
+    --live: #2c6136;
+    --live-bg: #e6efe6;
+
+    --display: "Familjen Grotesk", "Segoe UI", system-ui, sans-serif;
+    --prose: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --data: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #171613;
+      --surface: #201e1a;
+      --sunk: #131210;
+      --ink: #eceae3;
+      --muted: #a9a397;
+      --faint: #7d776c;
+      --rule: #3b3730;
+      --rule-soft: #2c2924;
+      --accent: #8fc4b6;
+      --accent-ink: #14201d;
+      --waiting: #d9a441;
+      --waiting-bg: #2b2417;
+      --live: #7fbb87;
+      --live-bg: #17261a;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #171613;
+    --surface: #201e1a;
+    --sunk: #131210;
+    --ink: #eceae3;
+    --muted: #a9a397;
+    --faint: #7d776c;
+    --rule: #3b3730;
+    --rule-soft: #2c2924;
+    --accent: #8fc4b6;
+    --accent-ink: #14201d;
+    --waiting: #d9a441;
+    --waiting-bg: #2b2417;
+    --live: #7fbb87;
+    --live-bg: #17261a;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--prose);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  /* ---------- top ---------- */
+
+  .masthead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1.6rem 0 0;
+  }
+
+  .wordmark {
+    font-family: var(--display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  .masthead nav {
+    display: flex;
+    gap: 1.1rem;
+    font-family: var(--display);
+    font-size: 0.9rem;
+  }
+
+  .masthead nav a { color: var(--muted); text-decoration: none; }
+  .masthead nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+  /* ---------- typografi ---------- */
+
+  h1, h2, h3 {
+    font-family: var(--display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  h1 { font-size: clamp(2rem, 6vw, 3.05rem); line-height: 1.08; font-weight: 700; }
+  h2 { font-size: clamp(1.35rem, 3.4vw, 1.75rem); line-height: 1.2; }
+  h3 { font-size: 1.02rem; }
+
+  p { margin: 0; }
+
+  .lede {
+    font-size: 1.16rem;
+    line-height: 1.5;
+    color: var(--muted);
+    max-width: 34ch;
+  }
+
+  section { padding: 3.4rem 0; border-top: 1px solid var(--rule-soft); }
+  section:first-of-type { border-top: 0; }
+
+  .stack { display: flex; flex-direction: column; gap: 1.1rem; }
+  .stack-tight { display: flex; flex-direction: column; gap: 0.55rem; }
+
+  /* Ingen versaler som etiketter — sætningsskrift, og kun et strejf sporing. */
+  .eyebrow {
+    font-family: var(--data);
+    font-size: 0.76rem;
+    letter-spacing: 0.015em;
+    color: var(--faint);
+  }
+
+  .measure { max-width: 60ch; }
+
+  a { color: var(--ink); text-underline-offset: 3px; }
+
+  /* ---------- hero ---------- */
+
+  .hero { padding: 2.6rem 0 2.8rem; }
+
+  .hero .lede { margin-top: 1.1rem; max-width: 46ch; }
+
+  /* ---------- demo ---------- */
+
+  .demo {
+    margin-top: 2rem;
+    border: 1px solid var(--rule);
+    border-radius: 5px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .demo-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0.55rem 0.9rem;
+    border-bottom: 1px solid var(--rule-soft);
+    background: var(--sunk);
+    font-family: var(--data);
+    font-size: 0.74rem;
+    color: var(--faint);
+  }
+
+  .demo-body { padding: 0.9rem; display: flex; flex-direction: column; gap: 0.55rem; }
+
+  .msg {
+    display: flex;
+    gap: 0.7rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 4px;
+    background: var(--sunk);
+  }
+
+  .msg-avatar {
+    flex: 0 0 1.9rem;
+    height: 1.9rem;
+    border-radius: 3px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    display: grid;
+    place-items: center;
+    font-family: var(--display);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .msg-who {
+    font-family: var(--display);
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .msg-who span { font-weight: 400; color: var(--faint); font-family: var(--data); font-size: 0.72rem; }
+
+  .msg-text { font-size: 0.98rem; line-height: 1.45; margin-top: 0.1rem; }
+
+  .steps { display: flex; flex-direction: column; gap: 0.4rem; list-style: none; margin: 0; padding: 0; }
+
+  .step {
+    display: grid;
+    grid-template-columns: 1.15rem minmax(0, 1fr);
+    gap: 0.65rem;
+    align-items: start;
+    padding: 0.45rem 0.15rem;
+    opacity: 0.25;
+    transition: opacity 260ms ease;
+  }
+
+  .step.on { opacity: 1; }
+
+  .step-dot {
+    margin-top: 0.42rem;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  .step.on .step-dot { background: var(--accent); }
+  .step.wait.on .step-dot { background: var(--waiting); }
+  .step.done.on .step-dot { background: var(--live); }
+
+  .step-what { font-family: var(--display); font-size: 0.9rem; font-weight: 600; }
+  .step-detail { font-family: var(--data); font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-top: 0.1rem; }
+
+  .verdict {
+    margin-top: 0.35rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 4px;
+    border: 1px solid var(--rule);
+    font-family: var(--display);
+    font-size: 0.9rem;
+  }
+
+  .verdict.live { border-color: var(--live); background: var(--live-bg); color: var(--live); }
+  .verdict.quote { border-color: var(--waiting); background: var(--waiting-bg); color: var(--waiting); }
+
+  .diff {
+    font-family: var(--data);
+    font-size: 0.76rem;
+    border: 1px solid var(--rule-soft);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .diff-name { padding: 0.3rem 0.5rem; background: var(--sunk); color: var(--muted); border-bottom: 1px solid var(--rule-soft); }
+  .diff-line { padding: 0.25rem 0.5rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .diff-before { background: #f5e7e4; color: #7a2b20; }
+  .diff-after { background: #e6efe6; color: #24532c; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .diff-before { background: #2b1815; color: #e6a396; }
+    :root:not([data-theme="light"]) .diff-after { background: #17261a; color: #9ccfa3; }
+  }
+
+  :root[data-theme="dark"] .diff-before { background: #2b1815; color: #e6a396; }
+  :root[data-theme="dark"] .diff-after { background: #17261a; color: #9ccfa3; }
+
+  .picker { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+
+  .chip {
+    font-family: var(--display);
+    font-size: 0.84rem;
+    padding: 0.4rem 0.7rem;
+    min-height: 2.1rem;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .chip:hover { border-color: var(--ink); }
+  .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  .demo-note { font-family: var(--data); font-size: 0.72rem; color: var(--faint); margin-top: 0.7rem; }
+
+  /* ---------- trin ---------- */
+
+  .flow { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1.4rem; counter-reset: n; }
+
+  .flow li {
+    display: grid;
+    grid-template-columns: 2.1rem minmax(0, 1fr);
+    gap: 1rem;
+    counter-increment: n;
+  }
+
+  .flow li::before {
+    content: counter(n);
+    font-family: var(--data);
+    font-size: 0.8rem;
+    color: var(--faint);
+    padding-top: 0.28rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .flow h3 { margin-bottom: 0.2rem; }
+  .flow p { color: var(--muted); font-size: 0.98rem; }
+
+  /* ---------- pakker ---------- */
+
+  .plans { display: flex; flex-direction: column; }
+
+  .plan {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.4rem 1.5rem;
+    align-items: baseline;
+    padding: 1.15rem 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+
+  .plan:first-child { border-top: 1px solid var(--rule); }
+
+  .plan-name { font-family: var(--display); font-size: 1.08rem; font-weight: 600; }
+
+  .plan-price {
+    font-family: var(--data);
+    font-size: 0.95rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  .plan-price b { font-weight: 500; }
+  .plan-price span { color: var(--faint); }
+
+  .plan-includes {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem 1rem;
+    font-family: var(--data);
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .plan-includes li::before { content: "· "; color: var(--faint); }
+
+  .build-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    align-items: baseline;
+    padding: 1.15rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* ---------- ikke med ---------- */
+
+  .excluded { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+
+  .excluded li {
+    display: grid;
+    grid-template-columns: 1.2rem minmax(0, 1fr);
+    gap: 0.6rem;
+    font-size: 0.99rem;
+    color: var(--muted);
+  }
+
+  .excluded li::before {
+    content: "–";
+    font-family: var(--data);
+    color: var(--faint);
+  }
+
+  /* ---------- kontakt ---------- */
+
+  .contact-lines { font-family: var(--data); font-size: 0.92rem; display: flex; flex-direction: column; gap: 0.3rem; }
+
+  footer {
+    border-top: 1px solid var(--rule-soft);
+    padding: 1.6rem 0 2.6rem;
+    font-family: var(--data);
+    font-size: 0.75rem;
+    color: var(--faint);
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .step { transition: none; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <a class="wordmark" href="#top">Studiet</a>
+    <nav>
+      <a href="#saadan">Sådan virker det</a>
+      <a href="#pakker">Pakker</a>
+      <a href="#kontakt">Kontakt</a>
+    </nav>
+  </header>
+
+  <section class="hero" id="top">
+    <h1>Skriv til os, når noget skal laves om. Så er det rettet inden i morgen.</h1>
+    <p class="lede">
+      Vi bygger og passer hjemmesider for små virksomheder. Du skal ikke lære et
+      system, oprette en sag eller vente på et tilbud på fem minutters arbejde.
+      Du skriver en besked. Vi retter det.
+    </p>
+
+    <!-- Demoen er selve salgsargumentet: den viser præcis den sløjfe, kunden køber. -->
+    <div class="demo">
+      <div class="demo-bar">
+        <span id="demo-channel">#bageriet-paa-torvet</span>
+        <span id="demo-clock">i dag, 07.32</span>
+      </div>
+      <div class="demo-body">
+        <div class="msg">
+          <div class="msg-avatar" id="demo-initials">MK</div>
+          <div>
+            <p class="msg-who"><span id="demo-sender">Mette Krogh</span> <span id="demo-time">07.32</span></p>
+            <p class="msg-text" id="demo-text"></p>
+          </div>
+        </div>
+        <ol class="steps" id="demo-steps"></ol>
+        <div id="demo-verdict"></div>
+      </div>
+    </div>
+
+    <div class="picker" id="demo-picker" role="group" aria-label="Vælg en besked"></div>
+    <p class="demo-note">
+      Eksempel med opdigtede kunder. Sådan ser sløjfen ud hos os.
+    </p>
+  </section>
+
+  <section id="saadan">
+    <div class="stack">
+      <p class="eyebrow">Sådan virker det</p>
+      <h2>Fire trin, og et af dem er et menneske</h2>
+
+      <ol class="flow">
+        <li>
+          <div>
+            <h3>Du skriver i din egen kanal</h3>
+            <p>
+              Hver kunde får en Slack-kanal. Du skriver som du ville skrive til en
+              kollega — ingen formular, ingen sagsnummer. Har du ikke Slack, går
+              det på mail.
+            </p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>Vi vurderer opgaven med det samme</h3>
+            <p>
+              Beskeden bliver læst og vurderet: hvad er det for en opgave, hvor
+              lang tid tager den, og er den dækket af dit abonnement. Er den ikke,
+              får du et tilbud — vi går aldrig i gang med noget, du ikke har sagt
+              ja til.
+            </p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>Rettelsen bliver bygget og vist frem</h3>
+            <p>
+              Ændringen laves på en kopi af din side, så du kan se den, før den
+              rører den rigtige. Du får et link.
+            </p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h3>Et menneske godkender, og så går det live</h3>
+            <p>
+              Ingenting når din side automatisk. Vi gennemgår hver eneste ændring
+              og trykker udgiv i hånden. Du får besked, når det er ude.
+            </p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="menneske">
+    <div class="stack measure">
+      <p class="eyebrow">Det vigtige forbehold</p>
+      <h2>Vi bruger AI. Den rører ikke din side alene.</h2>
+      <p>
+        Vi bruger maskiner til det, maskiner er gode til: læse beskeden, finde det
+        rigtige sted i koden, skrive rettelsen og bygge en forhåndsvisning. Det er
+        derfor en åbningstid kan være rettet på et kvarter i stedet for en uge.
+      </p>
+      <p>
+        Men der sidder et menneske mellem forslaget og din hjemmeside. Hver
+        ændring bliver set igennem og godkendt manuelt, før den går live. Der er
+        ikke en indstilling, der slår det fra — det er sådan, systemet er bygget,
+        og det er den eneste måde, vi tør stille garantien.
+      </p>
+      <p>
+        Vi svarer heller ikke dine kunder i dit navn, og vi udgiver ikke noget på
+        dine sociale medier. Vi passer din hjemmeside. Det er hele opgaven.
+      </p>
+    </div>
+  </section>
+
+  <section id="pakker">
+    <div class="stack">
+      <p class="eyebrow">Abonnement</p>
+      <h2>Du betaler pr. måned og kan sige op med en måneds varsel</h2>
+      <p class="measure" style="color: var(--muted); font-size: 0.99rem;">
+        Alle pakker indeholder hosting, SSL-certifikat, sikkerhedsopdateringer,
+        backup og overvågning af, om siden er oppe. Supportminutterne er den tid,
+        vi bruger på dine rettelser. Bruger du dem ikke, ruller de ikke videre —
+        og vi sender ikke en regning, fordi du kom til at skrive to gange.
+      </p>
+
+      <div class="plans">
+        <div class="plan">
+          <span class="plan-name">Lille</span>
+          <span class="plan-price"><b>1.200 kr.</b> <span>/md</span></span>
+          <ul class="plan-includes">
+            <li>60 minutters support</li>
+            <li>op til 5 sider</li>
+            <li>svar samme arbejdsdag</li>
+          </ul>
+        </div>
+
+        <div class="plan">
+          <span class="plan-name">Mellem</span>
+          <span class="plan-price"><b>2.400 kr.</b> <span>/md</span></span>
+          <ul class="plan-includes">
+            <li>120 minutters support</li>
+            <li>op til 15 sider</li>
+            <li>du kan selv rette tekst og billeder</li>
+            <li>månedlig rapport</li>
+          </ul>
+        </div>
+
+        <div class="plan">
+          <span class="plan-name">Stor</span>
+          <span class="plan-price"><b>3.600 kr.</b> <span>/md</span></span>
+          <ul class="plan-includes">
+            <li>180 minutters support</li>
+            <li>ubegrænset antal sider</li>
+            <li>flersproget</li>
+            <li>kvartalsmøde om siden</li>
+          </ul>
+        </div>
+
+        <div class="build-line">
+          <div>
+            <span class="plan-name">Ny hjemmeside</span>
+            <p style="color: var(--muted); font-size: 0.92rem;">
+              Design, opsætning og indhold. Typisk tre til fem uger.
+            </p>
+          </div>
+          <span class="plan-price"><b>fra 18.000 kr.</b></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ikke-med">
+    <div class="stack measure">
+      <p class="eyebrow">For en ordens skyld</p>
+      <h2>Det her er ikke med i abonnementet</h2>
+      <p style="color: var(--muted); font-size: 0.99rem;">
+        Vi laver det gerne — det koster bare ekstra, og du får en pris, før vi går
+        i gang. Vi vil hellere sige det nu end på en faktura.
+      </p>
+      <ul class="excluded">
+        <li>Webshop, betaling og lagerstyring</li>
+        <li>Nye funktioner der tager mere end en halv times arbejde</li>
+        <li>At skrive teksterne for dig</li>
+        <li>Logo og grafisk identitet</li>
+        <li>Google Ads, SEO-kampagner og nyhedsbreve</li>
+        <li>Support uden for hverdage 8–16</li>
+        <li>Andres systemer — booking, kassesystem, lønprogram</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="kontakt">
+    <div class="stack measure">
+      <p class="eyebrow">Kontakt</p>
+      <h2>Skriv, hvad du har brug for. Du får svar inden for en arbejdsdag.</h2>
+      <p style="color: var(--muted);">
+        Er du i tvivl om, hvilken pakke der passer, så skriv hvad du har i dag og
+        hvor tit du plejer at rette i det. Så siger jeg, hvad jeg ville vælge.
+      </p>
+      <div class="contact-lines">
+        <a href="mailto:hej@studiet.dk">hej@studiet.dk</a>
+        <a href="tel:+4520000000">20 00 00 00</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Studiet · Aarhus · CVR 00 00 00 00</span>
+    <span>Hjemmesider til små virksomheder</span>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* Tre beskeder — den tredje viser med vilje den vej, hvor svaret er "det er
+     ikke dækket, her er et tilbud". En side der kun viser lykkelige udfald
+     lyver om, hvordan det er at være kunde. */
+  var CASES = [
+    {
+      chip: "Ret en åbningstid",
+      channel: "#bageriet-paa-torvet",
+      sender: "Mette Krogh",
+      initials: "MK",
+      time: "07.32",
+      text: "Hej! Vi lukker kl. 16 om lørdagen fra på lørdag i stedet for kl. 14. Kan du rette det på forsiden?",
+      steps: [
+        { what: "Læst og vurderet", detail: "Tekstrettelse · anslået 8 minutter · dækket af abonnementet" },
+        { what: "Rettelsen bygget", detail: "src/components/Aabningstider.astro", diff: { before: "Lørdag  07.00–14.00", after: "Lørdag  07.00–16.00" } },
+        { what: "Afventer godkendelse", detail: "Et menneske ser forslaget igennem", kind: "wait" },
+        { what: "Udgivet", detail: "Live 07.49 · 17 minutter efter beskeden", kind: "done" }
+      ],
+      verdict: { cls: "live", text: "Rettet og live samme morgen. Trukket fra månedens supportminutter." }
+    },
+    {
+      chip: "Nyt telefonnummer",
+      channel: "#vestergaard-vvs",
+      sender: "Lars Vestergaard",
+      initials: "LV",
+      time: "11.04",
+      text: "Vores vagttelefon er skiftet til 40 12 88 90. Den gamle skal væk alle steder.",
+      steps: [
+        { what: "Læst og vurderet", detail: "Tekstrettelse · anslået 12 minutter · dækket af abonnementet" },
+        { what: "Rettelsen bygget", detail: "Fundet 4 steder: sidefod, kontakt, vagtside, strukturerede data", diff: { before: "40 11 77 22", after: "40 12 88 90" } },
+        { what: "Afventer godkendelse", detail: "Et menneske tjekker, at alle fire steder er med", kind: "wait" },
+        { what: "Udgivet", detail: "Live 11.21", kind: "done" }
+      ],
+      verdict: { cls: "live", text: "Alle fire forekomster rettet i én omgang. Du skal ikke selv holde styr på hvor de står." }
+    },
+    {
+      chip: "Ønske om en webshop",
+      channel: "#nordhavn-tandklinik",
+      sender: "Jonas Bech",
+      initials: "JB",
+      time: "10.20",
+      text: "Vi vil gerne kunne sælge tandblegningssæt direkte fra siden med betaling og lager. Hvad koster det?",
+      steps: [
+        { what: "Læst og vurderet", detail: "Ny funktion · anslået 16 timer · ikke dækket af abonnementet", kind: "wait" },
+        { what: "Ingen kode skrevet", detail: "Vi går ikke i gang med noget, du ikke har sagt ja til" },
+        { what: "Tilbud sendt", detail: "Pris og tidsplan på mail samme dag", kind: "wait" }
+      ],
+      verdict: { cls: "quote", text: "Uden for abonnementet. Du får en pris, før der bliver rørt ved noget — ikke en regning bagefter." }
+    }
+  ];
+
+  var picker = document.getElementById("demo-picker");
+  var stepsEl = document.getElementById("demo-steps");
+  var verdictEl = document.getElementById("demo-verdict");
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var timers = [];
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  function show(index) {
+    timers.forEach(clearTimeout);
+    timers = [];
+
+    var c = CASES[index];
+    document.getElementById("demo-channel").textContent = c.channel;
+    document.getElementById("demo-sender").textContent = c.sender;
+    document.getElementById("demo-initials").textContent = c.initials;
+    document.getElementById("demo-time").textContent = c.time;
+    document.getElementById("demo-clock").textContent = "i dag, " + c.time;
+    document.getElementById("demo-text").textContent = c.text;
+
+    Array.prototype.forEach.call(picker.children, function (b, i) {
+      b.setAttribute("aria-pressed", i === index ? "true" : "false");
+    });
+
+    stepsEl.innerHTML = c.steps.map(function (s) {
+      return '<li class="step ' + (s.kind || "") + '">' +
+        '<span class="step-dot"></span>' +
+        '<div><p class="step-what">' + esc(s.what) + '</p>' +
+        '<p class="step-detail">' + esc(s.detail) + '</p>' +
+        (s.diff ? '<div class="diff" style="margin-top:0.4rem">' +
+          '<div class="diff-name">før / efter</div>' +
+          '<div class="diff-line diff-before">' + esc(s.diff.before) + '</div>' +
+          '<div class="diff-line diff-after">' + esc(s.diff.after) + '</div>' +
+        '</div>' : '') +
+        '</div></li>';
+    }).join("");
+
+    verdictEl.innerHTML = '<p class="verdict ' + c.verdict.cls + '">' + esc(c.verdict.text) + '</p>';
+
+    var items = stepsEl.querySelectorAll(".step");
+    // Første trin er tændt med det samme, så siden aldrig står tom.
+    Array.prototype.forEach.call(items, function (li, i) {
+      if (reduce || i === 0) { li.classList.add("on"); return; }
+      timers.push(setTimeout(function () { li.classList.add("on"); }, 420 + i * 620));
+    });
+  }
+
+  CASES.forEach(function (c, i) {
+    var b = document.createElement("button");
+    b.className = "chip";
+    b.type = "button";
+    b.textContent = c.chip;
+    b.setAttribute("aria-pressed", "false");
+    b.addEventListener("click", function () { show(i); });
+    picker.appendChild(b);
+  });
+
+  show(0);
+})();
+</script>
+</body>
+</html>
