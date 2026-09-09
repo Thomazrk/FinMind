@@ -20,6 +20,40 @@ Vil I have motoren et andet sted: `./setup.sh /sti/til/agents-office`.
 **Krav:** Node 20+, git, og **Claude Code logget ind** med jeres Claude-konto (eller en
 `ANTHROPIC_API_KEY`). Uden Claude Code kører kontoret, men agenterne kan ikke arbejde.
 
+## CRM'et ind i brain'et
+
+Portalen er kundevendt — agenterne kan ikke logge ind i den, og de får hverken browser eller
+filadgang. Koblingen til jeres eget går gennem **et udtræk fra CRM'et**:
+
+```bash
+node vaerktoj/importer-crm.mjs udtraek.csv --se     # vis hvad der ville ske
+node vaerktoj/importer-crm.mjs udtraek.csv          # skriv det ind i brain'et
+```
+
+Importen skriver tre noter, agenterne læser ved næste opgave — ingen genstart:
+
+| Note | Indhold |
+|---|---|
+| `30-Kunder/bestand.md` | Kunder, policer, fordeling på produkt og selskab |
+| `30-Kunder/fornyelser.md` | Hovedforfald inden for 60 dage (`--dage` ændrer det) |
+| `00-Meta/bestandstal.md` | Tallene med kilde og dato, så agenterne må bruge dem |
+
+**Navne og CVR kommer aldrig i brain'et.** Kunder får et kundenummer, og opslaget
+kundenummer → navn lægges i `privat/kundeopslag.csv`, som ligger uden for brain'et og er
+gitignoreret. Kundenumre er stabile mellem kørsler. En kolonne, der hedder noget med CPR,
+personnummer, helbred eller kontonummer, bliver droppet uden at blive læst. Før noget skrives,
+scanner importeren de færdige noter for navne og CVR fra udtrækket og for CPR-mønstre — findes
+der ét, stopper den og skriver ingenting.
+
+De tre noter er gitignorerede: rigtige kundedata hører ikke i git.
+
+Hedder jeres kolonner noget andet, står listen i `vaerktoj/kolonner.json`. Importeren
+genkender `;`, `,` og tab, Excels BOM, og datoer skrevet både `14-09-2026` og `2026-09-14`.
+
+To rutiner arbejder på de noter: `fornyelser-45` læser fornyelseslisten, `provisionskontrol`
+holder provisionsopgørelserne op mod bestanden. Er udtrækket ikke kørt, siger de det og stopper
+i stedet for at gætte.
+
 ## Demo
 
 En telefonvenlig demo af opsætningen — de 35 skriveborde, timeplanen, færdighederne og

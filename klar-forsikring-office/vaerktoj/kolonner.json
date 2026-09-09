@@ -1,0 +1,11 @@
+{
+  "_om": "Kolonnenavne i jeres CRM-udtræk. Venstre side er det, importeren bruger; listen til højre er de overskrifter, den leder efter (store/små bogstaver og mellemrum er lige meget). Tilføj jeres egne.",
+  "kundenr": ["Kundenr", "Kundenummer", "Kunde-id", "KundeID", "Customer no"],
+  "navn": ["Navn", "Kundenavn", "Fulde navn", "Firmanavn", "Name"],
+  "cvr": ["CVR", "CVR-nr", "CVR nummer", "VAT"],
+  "police": ["Policenr", "Policenummer", "Police", "Policy no"],
+  "produkt": ["Produkt", "Forsikring", "Forsikringstype", "Dækning", "Product"],
+  "selskab": ["Selskab", "Forsikringsselskab", "Leverandør", "Company"],
+  "hovedforfald": ["Hovedforfald", "Forfaldsdato", "Fornyelsesdato", "Udløb", "Renewal"],
+  "status": ["Status", "Policestatus", "Tilstand"]
+}

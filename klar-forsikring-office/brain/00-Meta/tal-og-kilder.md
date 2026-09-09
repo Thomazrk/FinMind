@@ -5,11 +5,12 @@ Hver linje: tallet, hvor det kommer fra, og hvornår det sidst blev tjekket.
 
 | Tal | Værdi | Kilde | Tjekket |
 |---|---|---|---|
-| Antal kunder i bestanden | UDFYLD | Selskabernes bestandslister | UDFYLD |
-| Policer pr. kunde (snit) | UDFYLD | Bestandsopgørelse | UDFYLD |
+| Antal kunder i bestanden | se [[bestandstal]] | CRM-udtræk, se [[kundeliste]] | ved hver import |
+| Policer pr. kunde (snit) | se [[bestandstal]] | CRM-udtræk | ved hver import |
 | Provision seneste måned | UDFYLD | Provisionsopgørelser, se [[provision]] | UDFYLD |
 | Rådgivningssamtaler pr. uge | UDFYLD | Kalender | UDFYLD |
 | Tilbud sendt / accepteret | UDFYLD | [[pipeline-regler]] | UDFYLD |
+| Fornyelser de næste 60 dage | se [[bestandstal]] | CRM-udtræk, se [[fornyelser]] | ved hver import |
 | Åbne skadesager | UDFYLD | Sagsoversigt, se [[skadeproces]] | UDFYLD |
 | Gennemsnitlig svartid på kundepost | UDFYLD | Postkassen | UDFYLD |
 
