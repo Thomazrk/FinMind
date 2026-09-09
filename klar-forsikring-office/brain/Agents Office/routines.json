@@ -1,0 +1,75 @@
+{
+  "_about": "Faste opgaver kontoret selv kører. Kun afdelingerne emails, fin og sales understøttes i denne udgivelse. Tider er maskinens lokale ur. needsOk=true betyder, at intet sendes uden en godkendelse.",
+  "routines": [
+    {
+      "id": "morgenpost",
+      "dept": "emails",
+      "agent": "elead",
+      "title": "Morgentriage af kundepost",
+      "text": "Gennemgå kundepostkassen. Sortér i: skade (haster), klage (til ledelsen straks), spørgsmål om police eller betaling, salg, andet. Skriv en liste med afsender, hvad de vil, hvem der skal have den, og hvad der haster i dag. Følg svartiderne i 50-Kundepost/mailregler.md. Send intet.",
+      "when": { "kind": "weekdays", "at": "08:00" },
+      "needsOk": false,
+      "paused": false
+    },
+    {
+      "id": "ubesvaret-post",
+      "dept": "emails",
+      "agent": "cmail",
+      "title": "Post der ikke er besvaret i dag",
+      "text": "Find den kundepost, der er kommet i dag og endnu ikke besvaret. Skriv listen med afsender, emne, hvor længe den har ligget, og et forslag til svar for hver. Marker det, der kræver en rådgivers godkendelse. Send intet.",
+      "when": { "kind": "weekdays", "at": "15:30" },
+      "needsOk": false,
+      "paused": false
+    },
+    {
+      "id": "skadeopfoelgning",
+      "dept": "emails",
+      "agent": "vmail",
+      "title": "Rykkere til selskaberne på åbne sager",
+      "text": "Gennemgå de åbne skadesager. Find dem, hvor rykkerdatoen er nået, eller hvor vi ikke har hørt fra selskabet i mere end en uge. Skriv en rykker til selskabet pr. sag med policenummer, selskabets sagsnummer, hvad vi venter på, og hvor længe. Læg dem til godkendelse.",
+      "when": { "kind": "weekdays", "at": "09:30" },
+      "needsOk": true,
+      "paused": false
+    },
+    {
+      "id": "tilbudsopfoelgning",
+      "dept": "sales",
+      "agent": "folo",
+      "title": "Tilbud der ikke er besvaret",
+      "text": "Find de tilbud, der er sendt for mere end tre dage siden uden svar, og som ikke allerede er fulgt op to gange (se 60-Salg/pipeline-regler.md). Skriv en kort opfølgning pr. kunde, der tilbyder noget nyt — en dato, et svar, en gennemgang. Læg dem til godkendelse.",
+      "when": { "kind": "weekdays", "at": "10:00" },
+      "needsOk": true,
+      "paused": false
+    },
+    {
+      "id": "fornyelser-45",
+      "dept": "sales",
+      "agent": "folo",
+      "title": "Fornyelser 45 dage før hovedforfald",
+      "text": "Find de kunder, hvis hovedforfald ligger om 45 dage. Læs datoen i policen, antag den aldrig. Skriv en liste med kundenummer, produkt, selskab, hovedforfald, opsigelsesfrist, og hvad vi bør tage op i den årlige forsikringsgennemgang. Send intet.",
+      "when": { "kind": "weekly", "days": [1], "at": "09:00" },
+      "needsOk": false,
+      "paused": false
+    },
+    {
+      "id": "provisionskontrol",
+      "dept": "fin",
+      "agent": "invo",
+      "title": "Kontrollér provisionsopgørelserne",
+      "text": "Gennemgå de provisionsopgørelser, der er kommet siden sidst. Sammenhold dem med bestanden og satserne i 80-Oekonomi/provision.md: nye policer, ændringer, ophør, tilbagebetalt provision. List hver afvigelse med policenummer, forventet beløb, modtaget beløb og forskel. Ingen 'ca.'. Send intet.",
+      "when": { "kind": "weekly", "days": [1], "at": "09:30" },
+      "needsOk": false,
+      "paused": false
+    },
+    {
+      "id": "maanedsafstemning",
+      "dept": "fin",
+      "agent": "recon",
+      "title": "Månedsafstemning",
+      "text": "Match bankposterne mod provisionsafregninger og fakturaer efter 80-Oekonomi/afstemning.md. List de umatchede poster med dato, beløb, tekst og et bud på, hvad de er. Send intet.",
+      "when": { "kind": "weekly", "days": [1], "at": "10:30" },
+      "needsOk": false,
+      "paused": false
+    }
+  ]
+}
