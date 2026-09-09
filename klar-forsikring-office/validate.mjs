@@ -16,6 +16,36 @@ if (!OFFICE || !fs.existsSync(path.join(OFFICE, 'roster.mjs'))) {
 const load = f => import(pathToFileURL(path.join(OFFICE, f)).href);
 const brainPath = path.join(PACK, 'brain');
 
+// 0) konfigurationen — den fejler tavst, hvis den ikke er gyldig JSON
+const cfgFile = path.join(OFFICE, 'office.config.local.json');
+console.log(`\nKonfiguration: ${cfgFile}`);
+let cfgProblem = false;
+if (!fs.existsSync(cfgFile)) {
+  cfgProblem = true;
+  console.log('  ✗ filen findes ikke — kør ./setup.sh');
+} else {
+  const raw = fs.readFileSync(cfgFile, 'utf8');
+  try {
+    const c = JSON.parse(raw);
+    const resolved = path.resolve(OFFICE, c.brain || './brain');
+    console.log(`  navn: ${JSON.stringify(c.name)}`);
+    console.log(`  brain: ${resolved}`);
+    if (path.resolve(resolved) !== path.resolve(PACK, 'brain')) {
+      cfgProblem = true;
+      console.log(`  ✗ brain peger ikke på ${path.join(PACK, 'brain')} — kontoret kører på agents-office' egne eksempelnoter. Kør ./setup.sh igen.`);
+    }
+    if (c.model && !['sonnet', 'opus', 'fable'].includes(c.model)) {
+      cfgProblem = true;
+      console.log(`  ✗ model skal være sonnet, opus eller fable — eller "" for kontorets standard (Sonnet).`);
+    }
+  } catch (e) {
+    cfgProblem = true;
+    console.log(`  ✗ ikke gyldig JSON (${e.message.split('\n')[0]})`);
+    if (/[\u201c\u201d\u2018\u2019]/.test(raw)) console.log('  \u2717 filen indeholder kr\u00f8llede anf\u00f8rselstegn (\u201c \u201d \u2018 \u2019). JSON kr\u00e6ver lige: ". Kontoret ignorerer hele filen i tavshed og starter som "Northgate Studio" p\u00e5 eksempelnoterne.');
+  }
+}
+if (cfgProblem) process.exitCode = 1;
+
 const { loadRoster } = await load('roster.mjs');
 const { loadSkills } = await load('skills.mjs');
 const routines = await load('routines.mjs');
@@ -23,7 +53,7 @@ const routines = await load('routines.mjs');
 let problems = 0;
 const fail = m => { problems++; console.log('  ✗ ' + m); };
 
-console.log(`\nBrain: ${brainPath}`);
+console.log(`\nVores filer: ${brainPath}`);
 
 const r = loadRoster(brainPath);
 console.log(`\nRoster — ${r.agents.length} pladser, ${r.customised} tilpasset, ${r.briefed} med brief`);
@@ -49,5 +79,7 @@ for (const one of doc.routines) {
   if (ok) seen.push(one);
 }
 
-console.log(problems ? `\n${problems} problem(er) — ret dem i brain/Agents Office/\n` : '\nAlt validerer.\n');
-process.exit(problems ? 1 : 0);
+if (problems) console.log(`\n${problems} problem(er) i brain/Agents Office/`);
+if (cfgProblem) console.log('\nKonfigurationen skal rettes i ' + cfgFile + ' — eller kør ./setup.sh igen.');
+console.log(problems || cfgProblem ? '' : '\nAlt validerer.\n');
+process.exit(problems || cfgProblem ? 1 : 0);

@@ -20,11 +20,53 @@ Vil I have motoren et andet sted: `./setup.sh /sti/til/agents-office`.
 **Krav:** Node 20+, git, og **Claude Code logget ind** med jeres Claude-konto (eller en
 `ANTHROPIC_API_KEY`). Uden Claude Code kører kontoret, men agenterne kan ikke arbejde.
 
-Tjek jeres egne filer når som helst — også uden at starte kontoret:
+## Kommandoer
 
 ```bash
-node validate.mjs
+./start.sh                  # kontoret på http://localhost:4520
+node validate.mjs           # vores roster, færdigheder, rutiner og config — ingen Claude-kald
 ```
+
+Og i motorens mappe (`cat .office-path` viser hvor den ligger):
+
+```bash
+npm start                   # det samme som ./start.sh
+npm run check               # motorens egen testpakke: build + smoke tests, ingen Claude-kald
+npm run check:live          # plus én rigtig opgave og én chat gennem Claude
+```
+
+`http://localhost:4520/dark` er det samme kontor i mørkt lys. `FULL_CHECK=1 ./setup.sh` kører
+`npm run check` med som en del af opsætningen.
+
+`npm run check` fejler på `smoke: browser`, hvis Chrome ikke er installeret (`npx playwright
+install chrome`). Den test har intet med vores opsætning at gøre — se efter andre linjer med ✗.
+`npm run check:live` bruger af jeres Claude-forbrug.
+
+## Konfigurationen
+
+`setup.sh` skriver den, og den ligger i motorens mappe, ikke her:
+
+```json
+{
+  "name": "klarforsikring",
+  "brain": "/sti/til/klar-forsikring-office/brain",
+  "port": 4520,
+  "model": ""
+}
+```
+
+- **name** — står i titlen og i hver agents brief.
+- **brain** — **skal være den fulde sti til `brain/` her i mappen.** Skriver I `"./brain"`,
+  peger den på agents-office' egne eksempelnoter om et fiktivt designstudie, og så er hverken
+  vores roster, færdigheder eller rutiner med. Kontoret siger det ikke — det starter bare.
+- **port** — hvor kontoret lytter.
+- **model** — `""` betyder kontorets standard (Sonnet). Ellers `sonnet`, `opus` eller `fable`.
+  En opgave, en rutine eller en agent kan sætte sin egen ovenpå.
+
+> **Pas på krøllede anførselstegn.** Skriver I configfilen i et tekstbehandlingsprogram, laver
+> det `"` om til `“ ”`. Så er filen ikke gyldig JSON, og motoren **ignorerer den i tavshed** og
+> starter som "Northgate Studio" på eksempelnoterne. `node validate.mjs` fanger begge dele og
+> siger hvad der er galt.
 
 ## Hvad der er sat op
 
