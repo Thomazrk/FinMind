@@ -20,6 +20,19 @@ Vil I have motoren et andet sted: `./setup.sh /sti/til/agents-office`.
 **Krav:** Node 20+, git, og **Claude Code logget ind** med jeres Claude-konto (eller en
 `ANTHROPIC_API_KEY`). Uden Claude Code kører kontoret, men agenterne kan ikke arbejde.
 
+## Demo
+
+En telefonvenlig demo af opsætningen — de 35 skriveborde, timeplanen, færdighederne og
+skærmbilleder fra kontoret, mens det kørte:
+
+```bash
+node demo/build-demo.mjs      # bygger demo/demo.html af brain'ets egne filer
+```
+
+Filen er én selvstændig HTML uden eksterne kald (skærmbillederne ligger i
+`demo/billeder/` og bakes ind), så den kan sendes videre eller lægges op som den er.
+Den er ikke versionsstyret — byg den, når I har brug for den.
+
 ## Kommandoer
 
 ```bash
