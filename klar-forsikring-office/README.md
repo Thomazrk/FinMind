@@ -285,6 +285,18 @@ forsikring for andre:
 Motorens egen regel gælder oveni: agenterne læser frit, men sender, betaler eller ændrer kun
 noget uden for maskinen, når opgaven udtrykkeligt beder om netop det.
 
+## Når det skal køre selv
+
+Rutinerne kører kontorets dag, og alt, der ville sende noget ud af huset, venter på dit tryk
+under WAITING ON APPROVAL. Hele billedet — hvad der kører uden dig, hvad der spørger, og hvad
+der ikke kan sættes på timeplanen endnu: **[AUTOMATIK.md](AUTOMATIK.md)**.
+
+Kommandoerne til tidsplanen, med jeres egne stier sat ind:
+
+```bash
+node automatik.mjs        # ændrer ingenting, skriver kun ud hvad I skal køre
+```
+
 ## Drift
 
 Skal kontoret køre hver dag — hvilken maskine, automatisk start, sikkerhedskopi, opdatering, og

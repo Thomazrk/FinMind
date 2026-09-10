@@ -18,13 +18,13 @@
       "id": "ubesvaret-post",
       "dept": "emails",
       "agent": "cmail",
-      "title": "Post der ikke er besvaret i dag",
-      "text": "Find den kundepost, der er kommet i dag og endnu ikke besvaret. Skriv listen med afsender, emne, hvor længe den har ligget, og et forslag til svar for hver. Marker det, der kræver en rådgivers godkendelse. Send intet.",
+      "title": "Udkast til dagens ubesvarede post",
+      "text": "Find den kundepost, der er kommet i dag og ikke er besvaret. For hver: skriv hvem der skriver, hvad de vil, og et færdigt svar efter færdigheden client-reply. Er Outlook koblet på, lægges svarene som kladder, når jeg har godkendt dem — ikke før. Marker de svar, der handler om pris, dækningsændring eller afslag: dem skal en rådgiver læse, uanset hvad.",
       "when": {
         "kind": "weekdays",
         "at": "15:30"
       },
-      "needsOk": false,
+      "needsOk": true,
       "paused": false
     },
     {
