@@ -35,6 +35,37 @@ node tjek.mjs
 Den ændrer ingenting. Den kigger maskinen, opsætningen, configfilen, porten og netforbindelsen
 igennem, siger hvad der skal rettes, og skriver til sidst en rapport, I kan kopiere og sende.
 
+## Login eller API-nøgle
+
+Kontoret kan køre på to måder, og de er ikke lige gode:
+
+**Claude Code-login (anbefales).** Kør `claude` i en terminal og log ind med jeres Claude-konto.
+Agenterne får connectors og websøgning, og det kører på det abonnement, I allerede betaler.
+
+**ANTHROPIC_API_KEY.** Motoren tager nøglen fra en miljøvariabel — der er ingen fil og intet
+felt i kontoret til den. Sæt den i den **samme terminal**, som starter kontoret:
+
+```powershell
+$env:ANTHROPIC_API_KEY = "sk-ant-..."      # Windows, kun dette vindue
+setx ANTHROPIC_API_KEY "sk-ant-..."        # Windows, permanent — åbn en NY terminal bagefter
+```
+
+```bash
+export ANTHROPIC_API_KEY="sk-ant-..."      # Mac og Linux, kun dette vindue
+```
+
+**Hvad nøglen koster jer:** motoren kalder API'et uden værktøjer
+(`sdk.messages.create` med `system` og `messages`, intet `tools`-felt). Agenterne kan altså
+skrive ud fra brain'et — men de kan **ikke** bruge Gmail, Drive, Notion eller websøgning.
+Halvdelen af pointen med kontoret forsvinder. Og forbruget afregnes pr. token i stedet for at
+ligge på abonnementet.
+
+Er nøglen sat, vinder den over loginnet. `node tjek.mjs` siger, hvilken tilstand I kører i.
+
+**Skriv aldrig nøglen ind i en fil i denne mappe.** Den ville blive committet og skubbet til
+GitHub ved næste `git push`. Sker det alligevel: spær nøglen i Anthropic-konsollen med det samme
+og lav en ny.
+
 ## CRM'et ind i brain'et
 
 Portalen er kundevendt — agenterne kan ikke logge ind i den, og de får hverken browser eller

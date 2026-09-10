@@ -53,9 +53,19 @@ gitV ? sig(OK, 'git', gitV.replace('git version ', ''))
         : 'Mac: skriv  xcode-select --install  og prøv igen.');
 
 const claudeV = version('claude');
-claudeV ? sig(OK, 'Claude Code', claudeV)
-        : sig(OBS, 'Claude Code', 'kommandoen "claude" blev ikke fundet',
-              'Kontoret starter alligevel, men agenterne kan ikke arbejde, før Claude Code er installeret og logget ind.');
+const harNøgle = !!(process.env.ANTHROPIC_API_KEY || '').trim();
+if (claudeV) {
+  sig(OK, 'Claude Code', claudeV);
+  if (harNøgle) sig(OBS, 'ANTHROPIC_API_KEY', 'er sat i denne terminal',
+      'Nøglen vinder over dit Claude Code-login, og så mister agenterne deres connectors. Fjern den, hvis du vil bruge loginnet.');
+  else sig(OK, 'Sådan arbejder agenterne', 'på dit Claude Code-login — connectors og websøgning virker');
+} else if (harNøgle) {
+  sig(OBS, 'Claude Code', 'ikke fundet, men ANTHROPIC_API_KEY er sat',
+      'Agenterne kan skrive ud fra noterne, men de kan IKKE bruge connectors eller websøgning, og forbruget afregnes pr. token.');
+} else {
+  sig(OBS, 'Claude Code', 'kommandoen "claude" blev ikke fundet',
+      'Kontoret starter, men agenterne kan ikke arbejde. Installér Claude Code og log ind — eller sæt ANTHROPIC_API_KEY.');
+}
 
 // 2 — står vi i den rigtige mappe
 fs.existsSync(path.join(PACK, 'brain', 'Agents Office', 'agents.json'))
