@@ -27,6 +27,8 @@ const win = process.platform === 'win32';
 // indeholder "Program Files", og en shell knækker den ved mellemrummet.
 const kør = (cmd, args, cwd) => spawnSync(cmd, args, { cwd, stdio: 'inherit', shell: win });
 const kørNode = (args, cwd) => spawnSync(process.execPath, args, { cwd, stdio: 'inherit' });
+// git er også et rigtigt program — samme grund, ingen shell.
+const kørGit = (args, cwd) => spawnSync('git', args, { cwd, stdio: 'inherit' });
 const findes = cmd => spawnSync(cmd, ['--version'], { stdio: 'ignore', shell: win }).status === 0;
 
 if (+process.versions.node.split('.')[0] < 20) dø(`Node 20 eller nyere kræves (du har ${process.version}). Hent den på https://nodejs.org`);
@@ -36,8 +38,8 @@ if (!findes('claude')) console.log(`\n${gul('Bemærk:')} Claude Code (kommandoen
 
 sig(`1/5  Henter agents-office → ${OFFICE}`);
 const hentet = fs.existsSync(path.join(OFFICE, '.git'))
-  ? kør('git', ['pull', '--ff-only'], OFFICE)
-  : kør('git', ['clone', REPO, OFFICE]);
+  ? kørGit(['pull', '--ff-only'], OFFICE)
+  : kørGit(['clone', REPO, OFFICE]);
 if (hentet.status !== 0) dø('kunne ikke hente agents-office. Tjek netforbindelsen og prøv igen.');
 
 sig('2/5  Installerer');
