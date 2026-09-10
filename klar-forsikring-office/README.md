@@ -5,17 +5,23 @@ Et 3D-kontor, hvor AI-agenter laver rigtigt arbejde på jeres eget Claude-login.
 den er Klar Forsikrings udgave af den: de 35 pladser skrevet om til et dansk forsikringsagentur,
 et brain med jeres noter, fem færdigheder og syv faste rutiner.
 
-Motoren hentes af `setup.sh` og bliver liggende i sin egen mappe. Alt, der er jeres, ligger her
+Motoren hentes af opsætningen og bliver liggende i sin egen mappe. Alt, der er jeres, ligger her
 og er versionsstyret. En `git pull` i motoren rører aldrig noget af det.
 
 ## Kom i gang
 
+Kommandoerne skal skrives i en **terminal** — filerne her skal ikke dobbeltklikkes.
+På Mac: ⌘+mellemrum, skriv `Terminal`, tryk retur. På Windows: Start → `PowerShell`.
+
 ```bash
-./setup.sh          # henter agents-office til ~/agents-office, installerer, bygger, tjekker
-./start.sh          # → http://localhost:4520
+node setup.mjs      # henter agents-office til ~/agents-office, installerer, bygger, tjekker
+node start.mjs      # → http://localhost:4520
 ```
 
-Vil I have motoren et andet sted: `./setup.sh /sti/til/agents-office`.
+Det virker ens på Mac, Windows og Linux — der er ingen bash involveret. `setup.sh` og
+`start.sh` findes stadig og gør præcis det samme, for dem der er vant til dem.
+
+Vil I have motoren et andet sted: `node setup.mjs /sti/til/agents-office`.
 
 **Krav:** Node 20+, git, og **Claude Code logget ind** med jeres Claude-konto (eller en
 `ANTHROPIC_API_KEY`). Uden Claude Code kører kontoret, men agenterne kan ikke arbejde.
@@ -70,19 +76,19 @@ Den er ikke versionsstyret — byg den, når I har brug for den.
 ## Kommandoer
 
 ```bash
-./start.sh                  # kontoret på http://localhost:4520
+node start.mjs              # kontoret på http://localhost:4520
 node validate.mjs           # vores roster, færdigheder, rutiner og config — ingen Claude-kald
 ```
 
 Og i motorens mappe (`cat .office-path` viser hvor den ligger):
 
 ```bash
-npm start                   # det samme som ./start.sh
+npm start                   # det samme som node start.mjs
 npm run check               # motorens egen testpakke: build + smoke tests, ingen Claude-kald
 npm run check:live          # plus én rigtig opgave og én chat gennem Claude
 ```
 
-`http://localhost:4520/dark` er det samme kontor i mørkt lys. `FULL_CHECK=1 ./setup.sh` kører
+`http://localhost:4520/dark` er det samme kontor i mørkt lys. `FULL_CHECK=1 node setup.mjs` kører
 `npm run check` med som en del af opsætningen.
 
 `npm run check` fejler på `smoke: browser`, hvis Chrome ikke er installeret (`npx playwright
@@ -91,7 +97,7 @@ install chrome`). Den test har intet med vores opsætning at gøre — se efter 
 
 ## Konfigurationen
 
-`setup.sh` skriver den, og den ligger i motorens mappe, ikke her:
+Opsætningen skriver den, og den ligger i motorens mappe, ikke her:
 
 ```json
 {
@@ -226,4 +232,4 @@ Skal kontoret bruges i forretningen, skal I have en skriftlig tilladelse fra oph
 (GitHub: `ajsahni`) først. Indtil da: brug det til at afprøve idéen, ikke på rigtige kundesager.
 
 Denne mappe indeholder kun vores eget indhold — konfiguration, noter, roster og færdigheder.
-Motorens kode er ikke kopieret ind her; `setup.sh` henter den fra kilden.
+Motorens kode er ikke kopieret ind her; opsætningen henter den fra kilden.
