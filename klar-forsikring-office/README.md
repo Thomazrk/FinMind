@@ -13,13 +13,29 @@ og er versionsstyret. En `git pull` i motoren rører aldrig noget af det.
 Kommandoerne skal skrives i en **terminal** — filerne her skal ikke dobbeltklikkes.
 På Mac: ⌘+mellemrum, skriv `Terminal`, tryk retur. På Windows: Start → `PowerShell`.
 
-```bash
-node setup.mjs      # henter agents-office til ~/agents-office, installerer, bygger, tjekker
-node start.mjs      # → http://localhost:4520
+Én kommando klarer det hele, og den kan køres fra hvor som helst — den regner selv ud, hvor
+den ligger, så I behøver ikke skifte mappe først:
+
+```powershell
+node C:\Users\Bruger\FinMind\klar-forsikring-office\koer.mjs
 ```
 
-Det virker ens på Mac, Windows og Linux — der er ingen bash involveret. `setup.sh` og
-`start.sh` findes stadig og gør præcis det samme, for dem der er vant til dem.
+```bash
+node ~/FinMind/klar-forsikring-office/koer.mjs
+```
+
+Den henter det nyeste, tjekker maskinen, sætter op og starter kontoret på
+http://localhost:4520. Stop det med Ctrl+C.
+
+| Tilføjelse | Gør |
+|---|---|
+| `--uden-opdatering` | Springer `git pull` over |
+| `--kun-tjek` | Tjekker og sætter op, men starter ikke |
+| `--connectors` | Installerer Outlook- og portal-connectorne |
+
+Skridtene findes også hver for sig som `setup.mjs`, `start.mjs` og `tjek.mjs` i samme mappe.
+De kan alle køres med fuld sti uden at skifte mappe. Det virker ens på Mac, Windows og Linux —
+der er ingen bash involveret. `setup.sh` og `start.sh` findes stadig for dem, der er vant til dem.
 
 Vil I have motoren et andet sted: `node setup.mjs /sti/til/agents-office`.
 
