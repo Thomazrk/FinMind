@@ -3,8 +3,9 @@
 // så siden er én fil uden eksterne kald.  Kør:  node demo/build-demo.mjs
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const PACK = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const PACK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const BRAIN = path.join(PACK, 'brain', 'Agents Office');
 const read = p => fs.readFileSync(p, 'utf8');
 const agents = JSON.parse(read(path.join(BRAIN, 'agents.json'))).agents;

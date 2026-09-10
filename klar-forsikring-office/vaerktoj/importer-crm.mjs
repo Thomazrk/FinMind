@@ -12,9 +12,10 @@
 // Kolonnenavne rettes i vaerktoj/kolonner.json.
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
 
-const PACK = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const PACK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const BRAIN = path.join(PACK, 'brain');
 const PRIVAT = path.join(PACK, 'privat');
 

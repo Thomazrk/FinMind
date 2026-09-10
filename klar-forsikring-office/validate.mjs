@@ -3,9 +3,9 @@
 // Standard er stien i .office-path, som setup.sh skrev.
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 
-const PACK = path.dirname(new URL(import.meta.url).pathname);
+const PACK = path.dirname(fileURLToPath(import.meta.url));
 const arg = process.argv[2];
 const pathFile = path.join(PACK, '.office-path');
 const OFFICE = arg || (fs.existsSync(pathFile) ? fs.readFileSync(pathFile, 'utf8').trim() : '');

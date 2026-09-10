@@ -23,7 +23,10 @@ const gul = s => `${ESC}[33m${s}${ESC}[0m`;
 const sig = s => console.log('\n' + fed(s));
 const dø = s => { console.error(`\n${rod('Fejl:')} ${s}\n`); process.exit(1); };
 const win = process.platform === 'win32';
+// npm hedder npm.cmd på Windows og skal gennem en shell. Node må IKKE: stien til node.exe
+// indeholder "Program Files", og en shell knækker den ved mellemrummet.
 const kør = (cmd, args, cwd) => spawnSync(cmd, args, { cwd, stdio: 'inherit', shell: win });
+const kørNode = (args, cwd) => spawnSync(process.execPath, args, { cwd, stdio: 'inherit' });
 const findes = cmd => spawnSync(cmd, ['--version'], { stdio: 'ignore', shell: win }).status === 0;
 
 if (+process.versions.node.split('.')[0] < 20) dø(`Node 20 eller nyere kræves (du har ${process.version}). Hent den på https://nodejs.org`);
@@ -48,10 +51,10 @@ fs.writeFileSync(path.join(PACK, '.office-path'), OFFICE + '\n');
 console.log(config);
 
 sig('4/5  Bygger');
-if (kør(process.execPath, ['build.mjs'], OFFICE).status !== 0) dø('byggeriet fejlede.');
+if (kørNode(['build.mjs'], OFFICE).status !== 0) dø('byggeriet fejlede.');
 
 sig('5/5  Tjekker roster, færdigheder og rutiner');
-if (kør(process.execPath, [path.join(PACK, 'validate.mjs'), OFFICE], PACK).status !== 0)
+if (kørNode([path.join(PACK, 'validate.mjs'), OFFICE], PACK).status !== 0)
   dø("der er problemer i brain/Agents Office/. Ret dem og kør opsætningen igen.");
 
 if (process.env.FULL_CHECK === '1') {
