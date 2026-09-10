@@ -262,6 +262,11 @@ forsikring for andre:
 Motorens egen regel gælder oveni: agenterne læser frit, men sender, betaler eller ændrer kun
 noget uden for maskinen, når opgaven udtrykkeligt beder om netop det.
 
+## Drift
+
+Skal kontoret køre hver dag — hvilken maskine, automatisk start, sikkerhedskopi, opdatering, og
+hvorfor det aldrig må stå på det åbne internet: **[DRIFT.md](DRIFT.md)**.
+
 ## Licens — læs den, før I bruger det i driften
 
 agents-office er udgivet under **PolyForm Noncommercial 1.0.0**: kun ikke-kommercielle formål

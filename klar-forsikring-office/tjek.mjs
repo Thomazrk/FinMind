@@ -119,7 +119,11 @@ await new Promise(klar => {
   s.listen(port, '127.0.0.1');
 });
 
-// 6 — kan maskinen nå GitHub
+// 6 — hvem kan nå kontoret
+sig(OBS, 'Adgang til kontoret', `alle på netværket kan åbne http://<maskinens ip>:${port}`,
+    'Kontoret har ingen adgangskode. Læg det aldrig på det åbne internet — se DRIFT.md.');
+
+// 7 — kan maskinen nå GitHub
 await new Promise(klar => {
   const sok = net.connect({ host: 'github.com', port: 443, timeout: 8000 });
   const slut = (status, detalje, raad) => { sig(status, 'Netforbindelse', detalje, raad); sok.destroy(); klar(); };
