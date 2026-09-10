@@ -1,0 +1,14 @@
+{
+  "name": "klar-mcp-portal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Portalens Firestore som connector for klarforsikrings agentkontor — kun læsning.",
+  "scripts": { "start": "node server.mjs" },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@google-cloud/firestore": "^7.11.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.6.1"
+  }
+}

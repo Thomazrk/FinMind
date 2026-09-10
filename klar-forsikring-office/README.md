@@ -225,9 +225,16 @@ Vigtigst:
    udkast, ikke juridisk rådgivning.
 5. `00-Meta/tal-og-kilder.md` — det eneste sted agenterne må hente tal fra.
 
-**Connectors.** Feltet `tools` på hver agent i `agents.json` er gæt (gmail, notion, canva).
-Kør `claude mcp list` og skriv jeres egne navne ind — det er dem, der står i kontorets øverste
-bjælke. Uden en connector arbejder agenten ud fra brain'et alene.
+**Connectors.** To er bygget til jer og ligger i `vaerktoj/`:
+
+| Connector | Gør | Sæt op |
+|---|---|---|
+| `outlook` | Læser postkassen og lægger udkast i Kladder. **Kan ikke sende.** | [vaerktoj/mcp-outlook/README.md](vaerktoj/mcp-outlook/README.md) |
+| `portal` | Læser portalens Firestore. **Kun læsning.** | [vaerktoj/mcp-portal/README.md](vaerktoj/mcp-portal/README.md) |
+
+De er allerede skrevet ind i `tools` på de agenter, der skal bruge dem: 17 pladser har
+`outlook`, 17 har `portal`, og marketing har ingen af delene — de har ikke brug for kundedata.
+Har I andre connectors, viser `claude mcp list` dem, og navnene derfra skrives ind i `tools`.
 
 ## Sådan retter I noget
 

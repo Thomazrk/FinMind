@@ -3,6 +3,26 @@
   "brain": "BRAIN_PATH",
   "port": 4520,
   "model": "",
-  "mcp": { "allow": [], "deny": [], "departments": {} },
-  "tools": { "web": true }
+  "mcp": {
+    "allow": [],
+    "deny": [],
+    "departments": {
+      "outlook": [
+        "emails",
+        "sales",
+        "delivery",
+        "ops",
+        "fin"
+      ],
+      "portal": [
+        "sales",
+        "delivery",
+        "fin",
+        "ops"
+      ]
+    }
+  },
+  "tools": {
+    "web": true
+  }
 }

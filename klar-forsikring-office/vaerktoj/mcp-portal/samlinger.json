@@ -1,0 +1,23 @@
+{
+  "_om": "Hvad agenterne må læse i portalens database. Kør portal_samlinger for at se, hvilke samlinger der findes, og skriv de relevante ind herunder. Tom liste = agenterne må ingenting.",
+  "tilladte_samlinger": [],
+  "_skjulte_felter": "Felter, hvis navn indeholder et af disse ord, vises som [skjult] — uanset hvilken samling de ligger i.",
+  "skjulte_felter": [
+    "cpr",
+    "personnummer",
+    "password",
+    "adgangskode",
+    "token",
+    "secret",
+    "hemmelig",
+    "apikey",
+    "api_key",
+    "kontonr",
+    "kontonummer",
+    "regnr",
+    "helbred",
+    "diagnose"
+  ],
+  "maks_dokumenter": 50,
+  "maks_tegn_pr_felt": 500
+}

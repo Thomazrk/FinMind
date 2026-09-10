@@ -1,0 +1,13 @@
+{
+  "name": "klar-mcp-outlook",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Outlook som connector for klarforsikrings agentkontor — læser postkassen og laver udkast, sender aldrig.",
+  "scripts": { "login": "node login.mjs", "start": "node server.mjs" },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.6.1"
+  }
+}
