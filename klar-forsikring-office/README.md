@@ -26,6 +26,15 @@ Vil I have motoren et andet sted: `node setup.mjs /sti/til/agents-office`.
 **Krav:** Node 20+, git, og **Claude Code logget ind** med jeres Claude-konto (eller en
 `ANTHROPIC_API_KEY`). Uden Claude Code kører kontoret, men agenterne kan ikke arbejde.
 
+Går noget galt, så kør:
+
+```bash
+node tjek.mjs
+```
+
+Den ændrer ingenting. Den kigger maskinen, opsætningen, configfilen, porten og netforbindelsen
+igennem, siger hvad der skal rettes, og skriver til sidst en rapport, I kan kopiere og sende.
+
 ## CRM'et ind i brain'et
 
 Portalen er kundevendt — agenterne kan ikke logge ind i den, og de får hverken browser eller
